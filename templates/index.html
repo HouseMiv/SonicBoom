@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic Boom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #30343f;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #9893da;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #343844;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .developers {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .developer {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .developer img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+        .how-to-use {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #404555;
+            border-radius: 8px;
+        }
+        .analysis-form {
+            margin-top: 30px;
+            text-align: center;
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end; 
+        }
+        #popularSites {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #666;
+            margin-right: 10px;
+            background-color: #444;
+            color: #fff;
+        }
+        #urlInput {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #666;
+            margin-right: 10px;
+            background-color: #444;
+            color: #fff;
+            display: none; 
+        }
+        #analyzeButton {
+            background-color: #9893da;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: none; 
+        }
+        #popularSites:focus + #urlInput, #urlInput:focus, #urlInput:focus + #analyzeButton {
+            display: inline-block; 
+        }
+        #analyzeButton:hover {
+            background-color: #837fbe;
+        }
+        .error {
+            color: #ada7ff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sonic Boom</h1>
+        <p>
+            Sonic Boom - это инструмент для анализа веб-сайтов, который предлагает мгновенное погружение в мир данных вашего сайта. Этот инструмент станет вашим верным компаньоном в поиске оптимальной производительности и непревзойденной эффективности вашего веб-присутствия.
+        </p>
+    </header>
+    
+    <div class="container">
+        <section class="developers">
+            <h2>Developer Team</h2>
+            <div class="developer">
+                <img src="https://i.yapx.ru/Xey6W.jpg" />
+                <p>Miv</p>
+                <p>Сивацкий Михаил</p>
+            </div>
+            <div class="developer">
+                <img src="https://i.yapx.ru/Xey6Y.jpg" />
+                <p>nmhlkk</p>
+                <p>Михайлюк Анастасия</p>
+            </div>
+            <div class="developer">
+                <img src="https://i.yapx.ru/Xey6X.jpg" />
+                <p>Гончий</p>
+                <p>Орлов Михаил</p>
+            </div>
+        </section>
+        
+        <section class="how-to-use">
+            <h2>Как использовать Sonic Boom?</h2>
+            <p>Чтобы начать анализ, выберите популярный сайт из списка или введите URL вашего сайта в поле ниже и нажмите кнопку "Анализ". Результаты анализа будут представлены вам в кратком отчете, позволяя вам легко понять, как улучшить ваш веб-сайт.</p>
+        </section>
+
+        <form class="analysis-form" method="post">
+            <select id="popularSites" name="popular_sites">
+                <option value="" disabled selected>Выберите сайт</option>
+                <option value="https://www.odin.study">Odin</option>
+                <option value="https://vk.com">VK</option>
+                <option value="https://yandex.ru">Yandex</option>
+                <option value="https://www.google.com">Google</option>
+                <option value="custom">Ввести самостоятельно</option>
+            </select>
+            <input type="text" id="urlInput" name="url" placeholder="Введите URL сайта">
+            <button type="submit" id="analyzeButton">Анализ</button>
+        </form>
+        
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('popularSites').addEventListener('change', function() {
+            var selectedOption = this.value;
+            var analyzeButton = document.getElementById('analyzeButton');
+            var urlInput = document.getElementById('urlInput');
+            if (selectedOption === 'custom') {
+                urlInput.style.display = 'inline-block';
+                analyzeButton.style.display = 'inline-block';
+            } else if (selectedOption !== '') {
+                urlInput.style.display = 'none';
+                analyzeButton.style.display = 'inline-block';
+                urlInput.value = selectedOption; // Добавляем выбранный URL в поле ввода
+            } else {
+                urlInput.style.display = 'none';
+                analyzeButton.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

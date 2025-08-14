@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История анализов и аналитика - Sonic Boom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #333;
+            --border-color: #e1e5e9;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --success-color: #4CAF50;
+            --warning-color: #FF9800;
+            --error-color: #f44336;
+            --info-color: #2196F3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            color: var(--text-color);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            color: #ffd700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        /* Filters Panel */
+        .filters-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .filters-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        /* Analytics Section */
+        .analytics-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .analytics-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* History Table */
+        .history-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .history-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .history-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-table th {
+            background: rgba(102, 126, 234, 0.1);
+            font-weight: 600;
+            color: var(--text-color);
+            position: sticky;
+            top: 0;
+        }
+
+        .history-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .history-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .url-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .score-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .score-a { background: #4CAF50; color: white; }
+        .score-b { background: #FF9800; color: white; }
+        .score-c { background: #FFC107; color: black; }
+        .score-d { background: #FF5722; color: white; }
+        .score-f { background: #f44336; color: white; }
+
+        .time-cell {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-btn.active {
+            color: #ffd700;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: var(--text-color);
+        }
+
+        /* Notifications */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+        }
+
+        .notification {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--info-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left-color: var(--success-color);
+        }
+
+        .notification.error {
+            border-left-color: var(--error-color);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        /* Alerts Panel */
+        .alerts-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-item.seo {
+            border-left-color: var(--error-color);
+        }
+
+        .alert-item.performance {
+            border-left-color: var(--warning-color);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .alert-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .url-cell {
+                max-width: 120px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .filters-panel, .analytics-section, .history-section {
+            animation: fadeInUp 0.6s ease 0.5s forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Modal for detailed view -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Детали анализа</h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">
+                <i class="fas fa-chart-line"></i>
+                История анализов и аналитика
+            </h1>
+            <p class="subtitle">Полная история анализов с расширенной аналитикой и фильтрацией</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value" id="totalAnalyses">-</div>
+                <div class="stat-label">Всего анализов</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="stat-value" id="avgLoadTime">-</div>
+                <div class="stat-label">Среднее время загрузки</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-value" id="topScore">-</div>
+                <div class="stat-label">Лучший SEO рейтинг</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="stat-value" id="activeAlerts">-</div>
+                <div class="stat-label">Активные алерты</div>
+            </div>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="alerts-panel" id="alertsPanel" style="display: none;">
+            <div class="analytics-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Активные алерты</span>
+            </div>
+            <div id="alertsList"></div>
+        </div>
+
+        <!-- Filters Panel -->
+        <div class="filters-panel">
+            <div class="filters-header">
+                <i class="fas fa-filter"></i>
+                <span>Фильтры</span>
+            </div>
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Дата от</label>
+                    <input type="date" class="filter-input" id="dateFrom">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Дата до</label>
+                    <input type="date" class="filter-input" id="dateTo">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">SEO рейтинг</label>
+                    <select class="filter-select" id="seoFilter">
+                        <option value="">Все рейтинги</option>
+                        <option value="S+">S+</option>
+                        <option value="S">S</option>
+                        <option value="A+">A+</option>
+                        <option value="A">A</option>
+                        <option value="B+">B+</option>
+                        <option value="B">B</option>
+                        <option value="C+">C+</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="F">F</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Время загрузки (сек)</label>
+                    <input type="number" class="filter-input" id="loadTimeMin" placeholder="Мин" step="0.1">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Домен</label>
+                    <input type="text" class="filter-input" id="domainFilter" placeholder="Например: google.com">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Теги</label>
+                    <input type="text" class="filter-input" id="tagsFilter" placeholder="Введите теги">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Только избранное</label>
+                    <select class="filter-select" id="favoritesFilter">
+                        <option value="">Все записи</option>
+                        <option value="true">Только избранное</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn" onclick="applyFilters()">
+                    <i class="fas fa-search"></i>
+                    Применить фильтры
+                </button>
+                <button class="btn btn-secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Сбросить
+                </button>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="analytics-section">
+            <div class="analytics-header">
+                <i class="fas fa-chart-pie"></i>
+                <span>Аналитика</span>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Распределение SEO рейтингов</h3>
+                    <canvas id="seoChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Тренд SEO рейтингов (30 дней)</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Топ доменов</h3>
+                    <canvas id="domainsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Время загрузки</h3>
+                    <canvas id="loadTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Поиск по URL...">
+            </div>
+            <button class="btn" onclick="exportHistory('csv')">
+                <i class="fas fa-download"></i>
+                Экспорт CSV
+            </button>
+            <button class="btn" onclick="exportHistory('json')">
+                <i class="fas fa-code"></i>
+                Экспорт JSON
+            </button>
+            <button class="btn btn-secondary" onclick="clearHistory()">
+                <i class="fas fa-trash"></i>
+                Очистить историю
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </a>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-section">
+            <div class="history-header">
+                <div class="history-icon">
+                    <i class="fas fa-table"></i>
+                </div>
+                <h3 class="history-title">История анализов</h3>
+            </div>
+            
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>⭐</th>
+                        <th>URL</th>
+                        <th>Время загрузки</th>
+                        <th>DNS</th>
+                        <th>SSL</th>
+                        <th>Ping</th>
+                        <th>SEO рейтинг</th>
+                        <th>Домен</th>
+                        <th>Теги</th>
+                        <th>Дата</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="navigation">
+            <p style="color: white; opacity: 0.8;">
+                Показано <span id="recordsCount">0</span> записей из истории анализов
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let currentHistory = [];
+        let charts = {};
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            let icon = 'fas fa-info-circle';
+            if (type === 'success') icon = 'fas fa-check-circle';
+            if (type === 'error') icon = 'fas fa-exclamation-circle';
+            if (type === 'warning') icon = 'fas fa-exclamation-triangle';
+            
+            notification.innerHTML = `
+                <i class="${icon}"></i>
+                <div class="notification-message">${message}</div>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-20px) translateX(-50%)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Load all data
+        async function loadAllData() {
+            await Promise.all([
+                loadStats(),
+                loadAnalytics(),
+                loadHistory(),
+                loadAlerts()
+            ]);
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                
+                document.getElementById('totalAnalyses').textContent = stats.total_analyses;
+                document.getElementById('avgLoadTime').textContent = stats.average_load_time + 's';
+                
+                // Get best SEO score from history
+                const bestScore = currentHistory.reduce((best, item) => {
+                    const score = item.seo_score;
+                    if (score === 'S+') return score;
+                    if (best === 'S+' || score === 'S') return score;
+                    if (best === 'S' || score === 'A+') return score;
+                    if (best === 'A+' || score === 'A') return score;
+                    if (best === 'A' || score === 'B+') return score;
+                    if (best === 'B+' || score === 'B') return score;
+                    if (best === 'B' || score === 'C+') return score;
+                    if (best === 'C+' || score === 'C') return score;
+                    if (best === 'C' || score === 'D') return score;
+                    return best;
+                }, 'F');
+                
+                document.getElementById('topScore').textContent = bestScore;
+                
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics');
+                const analytics = await response.json();
+                
+                createSEOChart(analytics.seo_distribution);
+                createTrendChart(analytics.seo_trend);
+                createDomainsChart(analytics.top_domains);
+                createLoadTimeChart(analytics.load_time_stats);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Create SEO distribution chart
+        function createSEOChart(data) {
+            const ctx = document.getElementById('seoChart').getContext('2d');
+            
+            if (charts.seo) charts.seo.destroy();
+            
+            charts.seo = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(item => item.score),
+                    datasets: [{
+                        data: data.map(item => item.count),
+                        backgroundColor: [
+                            '#4CAF50', '#8BC34A', '#FFC107', '#FF9800', '#FF5722',
+                            '#9C27B0', '#3F51B5', '#2196F3', '#00BCD4', '#009688'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create trend chart
+        function createTrendChart(data) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            if (charts.trend) charts.trend.destroy();
+            
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.date),
+                    datasets: [{
+                        label: 'Средний SEO рейтинг',
+                        data: data.map(item => item.avg_score),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create domains chart
+        function createDomainsChart(data) {
+            const ctx = document.getElementById('domainsChart').getContext('2d');
+            
+            if (charts.domains) charts.domains.destroy();
+            
+            charts.domains = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.domain),
+                    datasets: [{
+                        label: 'Количество анализов',
+                        data: data.map(item => item.count),
+                        backgroundColor: '#764ba2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create load time chart
+        function createLoadTimeChart(data) {
+            const ctx = document.getElementById('loadTimeChart').getContext('2d');
+            
+            if (charts.loadTime) charts.loadTime.destroy();
+            
+            charts.loadTime = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Быстрые (<1с)', 'Средние (1-3с)', 'Медленные (>3с)'],
+                    datasets: [{
+                        data: [data.fast, data.medium, data.slow],
+                        backgroundColor: ['#4CAF50', '#FFC107', '#FF5722']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Load history
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history?limit=100');
+                currentHistory = await response.json();
+                renderHistoryTable(currentHistory);
+                document.getElementById('recordsCount').textContent = currentHistory.length;
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // Render history table
+        function renderHistoryTable(history) {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = '';
+            
+            history.forEach(item => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', item.id);
+                
+                row.innerHTML = `
+                    <td>
+                        <button class="favorite-btn ${item.is_favorite ? 'active' : ''}" 
+                                onclick="toggleFavorite(${item.id}, ${!item.is_favorite})">
+                            <i class="fas fa-star"></i>
+                        </button>
+                    </td>
+                    <td class="url-cell" title="${item.url}">${item.url}</td>
+                    <td class="time-cell">${item.load_time ? item.load_time.toFixed(3) + 's' : 'N/A'}</td>
+                    <td>${item.dns_info && item.dns_info !== "Не удалось получить DNS информацию" ? '✅' : '❌'}</td>
+                    <td>${item.ssl_info && !item.ssl_info.includes('error') ? '☑' : 'X'}</td>
+                    <td>${item.avg_ping && !item.avg_ping.includes('Ошибка') ? item.avg_ping : '❌'}</td>
+                    <td><span class="score-badge score-${item.seo_score ? item.seo_score.toLowerCase() : 'f'}">${item.seo_score || 'N/A'}</span></td>
+                    <td>${item.domain || 'N/A'}</td>
+                    <td>${item.tags || '-'}</td>
+                    <td>${item.timestamp ? item.timestamp.split(' ')[0] : 'N/A'}</td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" 
+                                    onclick="showDetails(${item.id})" title="Детали">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" 
+                                    onclick="reanalyze('${item.url}')" title="Повторить анализ">
+                                <i class="fas fa-redo"></i>
+                            </button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" 
+                                    onclick="deleteAnalysis(${item.id}, '${item.url}')" title="Удалить запись">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load alerts
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/api/alerts');
+                const alerts = await response.json();
+                
+                const unreadAlerts = alerts.filter(alert => !alert.is_read);
+                document.getElementById('activeAlerts').textContent = unreadAlerts.length;
+                
+                if (unreadAlerts.length > 0) {
+                    document.getElementById('alertsPanel').style.display = 'block';
+                    renderAlerts(unreadAlerts);
+                }
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+            }
+        }
+
+        // Render alerts
+        function renderAlerts(alerts) {
+            const alertsList = document.getElementById('alertsList');
+            alertsList.innerHTML = '';
+            
+            alerts.forEach(alert => {
+                const alertItem = document.createElement('div');
+                alertItem.className = `alert-item ${alert.alert_type}`;
+                
+                alertItem.innerHTML = `
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.url}</div>
+                        <div class="alert-message">${alert.message}</div>
+                        <div class="alert-date">${new Date(alert.created_at).toLocaleString()}</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="markAlertRead(${alert.id})">
+                        <i class="fas fa-check"></i>
+                    </button>
+                `;
+                
+                alertsList.appendChild(alertItem);
+            });
+        }
+
+        // Apply filters
+        async function applyFilters() {
+            const params = new URLSearchParams();
+            
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const seoScore = document.getElementById('seoFilter').value;
+            const loadTimeMin = document.getElementById('loadTimeMin').value;
+            const domain = document.getElementById('domainFilter').value;
+            const tags = document.getElementById('tagsFilter').value;
+            const favorites = document.getElementById('favoritesFilter').value;
+            
+            if (dateFrom) params.append('date_from', dateFrom);
+            if (dateTo) params.append('date_to', dateTo);
+            if (seoScore) params.append('seo_score', seoScore);
+            if (loadTimeMin) params.append('load_time_min', loadTimeMin);
+            if (domain) params.append('domain', domain);
+            if (tags) params.append('tags', tags);
+            if (favorites) params.append('favorites_only', favorites);
+            
+            try {
+                const response = await fetch(`/api/history/filter?${params.toString()}`);
+                const filteredHistory = await response.json();
+                renderHistoryTable(filteredHistory);
+                document.getElementById('recordsCount').textContent = filteredHistory.length;
+                showNotification(`Найдено ${filteredHistory.length} записей`, 'success');
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                showNotification('Ошибка при применении фильтров', 'error');
+            }
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            document.getElementById('seoFilter').value = '';
+            document.getElementById('loadTimeMin').value = '';
+            document.getElementById('domainFilter').value = '';
+            document.getElementById('tagsFilter').value = '';
+            document.getElementById('favoritesFilter').value = '';
+            loadHistory();
+        }
+
+        // Toggle favorite
+        async function toggleFavorite(analysisId, isFavorite) {
+            try {
+                const response = await fetch('/api/favorites', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysis_id: analysisId,
+                        is_favorite: isFavorite
+                    })
+                });
+                
+                if (response.ok) {
+                    const btn = document.querySelector(`[data-id="${analysisId}"] .favorite-btn`);
+                    btn.classList.toggle('active', isFavorite);
+                    showNotification(isFavorite ? 'Добавлено в избранное' : 'Удалено из избранного', 'success');
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+                showNotification('Ошибка при обновлении избранного', 'error');
+            }
+        }
+
+        // Show details modal
+        function showDetails(analysisId) {
+            const item = currentHistory.find(h => h.id === analysisId);
+            if (!item) return;
+            
+            document.getElementById('modalTitle').textContent = `Анализ: ${item.url}`;
+            document.getElementById('modalContent').innerHTML = `
+                <div style="display: grid; gap: 15px;">
+                    <div><strong>URL:</strong> ${item.url}</div>
+                    <div><strong>Время загрузки:</strong> ${item.load_time ? item.load_time.toFixed(3) + 's' : 'N/A'}</div>
+                    <div><strong>SEO рейтинг:</strong> <span class="score-badge score-${item.seo_score ? item.seo_score.toLowerCase() : 'f'}">${item.seo_score || 'N/A'}</span></div>
+                    <div><strong>DNS:</strong> ${item.dns_info || 'N/A'}</div>
+                    <div><strong>SSL:</strong> ${item.ssl_info || 'N/A'}</div>
+                    <div><strong>Ping:</strong> ${item.avg_ping || 'N/A'}</div>
+                    <div><strong>Размер страницы:</strong> ${item.page_size ? (item.page_size / 1024).toFixed(2) + ' KB' : 'N/A'}</div>
+                    <div><strong>Домен:</strong> ${item.domain || 'N/A'}</div>
+                    <div><strong>Теги:</strong> ${item.tags || 'Нет'}</div>
+                    <div><strong>Заметки:</strong> ${item.notes || 'Нет'}</div>
+                    <div><strong>Дата:</strong> ${item.timestamp || 'N/A'}</div>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        // Mark alert as read
+        async function markAlertRead(alertId) {
+            try {
+                const response = await fetch('/api/alerts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        alert_id: alertId
+                    })
+                });
+                
+                if (response.ok) {
+                    loadAlerts();
+                    showNotification('Алерт отмечен как прочитанный', 'success');
+                }
+            } catch (error) {
+                console.error('Error marking alert as read:', error);
+            }
+        }
+
+        // Export history
+        function exportHistory(format) {
+            window.open(`/api/export/${format}`, '_blank');
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#historyTableBody tr');
+            
+            rows.forEach(row => {
+                const url = row.cells[1].textContent.toLowerCase();
+                if (url.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Modal close
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('detailModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Reanalyze function
+        function reanalyze(url) {
+            if (confirm(`Повторить анализ для ${url}?`)) {
+                window.location.href = `/?url=${encodeURIComponent(url)}`;
+            }
+        }
+
+        // Delete analysis function
+        async function deleteAnalysis(analysisId, url) {
+            if (confirm(`Удалить анализ для ${url}?`)) {
+                try {
+                    const response = await fetch(`/api/delete-analysis/${analysisId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('Запись удалена', 'success');
+                        loadHistory();
+                    } else {
+                        showNotification('Ошибка при удалении', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting analysis:', error);
+                    showNotification('Ошибка при удалении', 'error');
+                }
+            }
+        }
+
+        // Clear history function
+        async function clearHistory() {
+            if (confirm('Очистить всю историю анализов? Это действие нельзя отменить.')) {
+                try {
+                    const response = await fetch('/api/clear-history', {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        showNotification('История очищена', 'success');
+                        loadHistory();
+                    } else {
+                        showNotification('Ошибка при очистке истории', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error clearing history:', error);
+                    showNotification('Ошибка при очистке истории', 'error');
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+        });
+    </script>
+</body>
+</html>

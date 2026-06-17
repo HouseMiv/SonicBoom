@@ -4,9 +4,10 @@
 
 > В интерфейсе бренд отображается как **Sonic Boom** (`SB`).
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/flask-3.x-green.svg)](https://flask.palletsprojects.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+`Python` `Flask` `HTML` `CSS` `JavaScript` `requests` `SQLite` `Jinja2` `Gunicorn`  
+`socket` `ssl` `subprocess` `Chart.js` `Font Awesome`
 
 ---
 

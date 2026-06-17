@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API — Sonic Boom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <style>
+        :root {
+            --bg: #0B1020;
+            --card: #131A2E;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #E8ECF4;
+            --text-muted: #8B95A8;
+            --primary: #6D5DFC;
+            --accent: #00D4FF;
+            --success: #00C853;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 80px; }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        .lead { color: var(--text-muted); margin-bottom: 32px; }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .status-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .status-card label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .status-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+        }
+
+        .status-ok { color: var(--success); }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .endpoint-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .endpoint-list li {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.875rem;
+        }
+
+        .method {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 7px;
+            border-radius: 4px;
+            min-width: 52px;
+            text-align: center;
+        }
+
+        .method-get { background: rgba(0, 212, 255, 0.15); color: var(--accent); }
+        .method-post { background: rgba(0, 200, 83, 0.15); color: var(--success); }
+        .method-delete { background: rgba(255, 82, 82, 0.15); color: #FF5252; }
+
+        .path {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+        }
+
+        .try-link {
+            margin-left: auto;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .docs-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 20px 24px;
+            background: rgba(109, 93, 252, 0.08);
+            border: 1px solid rgba(109, 93, 252, 0.2);
+            border-radius: 12px;
+        }
+
+        .docs-banner p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:hover { background: #5A4BE0; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <nav class="nav">
+            <a href="{{ url_for('index') }}" class="brand">
+                <span class="brand-mark">SB</span>
+                Sonic Boom
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('history') }}">История</a>
+            </div>
+        </nav>
+
+        <h1>API</h1>
+        <p class="lead">REST API Sonic Boom. Статус сервиса и быстрый доступ к endpoints.</p>
+
+        <div class="status-grid">
+            <div class="status-card">
+                <label>Health</label>
+                <div class="status-value status-ok" id="healthStatus">—</div>
+            </div>
+            <div class="status-card">
+                <label>Version</label>
+                <div class="status-value" id="versionStatus">{{ app_version }}</div>
+            </div>
+            <div class="status-card">
+                <label>Base URL</label>
+                <div class="status-value" id="baseUrl">{{ request.url_root.rstrip('/') }}</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Endpoints</h2>
+            <ul class="endpoint-list">
+                <li>
+                    <span class="method method-get">GET</span>
+                    <span class="path">/health</span>
+                    <a class="try-link" href="{{ url_for('health') }}" target="_blank" rel="noopener">Try →</a>
+                </li>
+                <li>
+                    <span class="method method-get">GET</span>
+                    <span class="path">/version</span>
+                    <a class="try-link" href="{{ url_for('version') }}" target="_blank" rel="noopener">Try →</a>
+                </li>
+                <li>
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/history</span>
+                    <a class="try-link" href="{{ url_for('api_history') }}?limit=5" target="_blank" rel="noopener">Try →</a>
+                </li>
+                <li>
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/stats</span>
+                    <a class="try-link" href="{{ url_for('api_stats') }}" target="_blank" rel="noopener">Try →</a>
+                </li>
+                <li>
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/analytics</span>
+                    <a class="try-link" href="{{ url_for('api_analytics') }}" target="_blank" rel="noopener">Try →</a>
+                </li>
+                <li>
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/alerts</span>
+                    <a class="try-link" href="{{ url_for('api_alerts') }}" target="_blank" rel="noopener">Try →</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="docs-banner">
+            <p>Полное описание параметров, примеры запросов и admin-доступ.</p>
+            <a href="{{ url_for('docs') }}" class="btn">Documentation →</a>
+        </div>
+
+        {% include 'partials/footer.html' %}
+    </div>
+
+    <script>
+        fetch('{{ url_for("health") }}')
+            .then(r => r.json())
+            .then(d => { document.getElementById('healthStatus').textContent = d.status || 'ok'; })
+            .catch(() => { document.getElementById('healthStatus').textContent = 'error'; });
+    </script>
+</body>
+</html>

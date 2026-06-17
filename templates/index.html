@@ -3,919 +3,645 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sonic Boom - Анализ веб-сайтов</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Sonic Boom — технический анализ сайтов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/report-preview.css') }}">
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text-color: #333;
-            --border-color: #e1e5e9;
-            --shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --bg: #0B1020;
+            --card: #131A2E;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #E8ECF4;
+            --text-muted: #8B95A8;
+            --primary: #6D5DFC;
+            --primary-hover: #5A4BE0;
+            --accent: #00D4FF;
+            --success: #00C853;
+            --warning: #FFB300;
+            --error: #FF5252;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--primary-gradient);
-            min-height: 100vh;
-            color: var(--text-color);
-            overflow-x: hidden;
-            transition: all 0.3s ease;
-            position: relative;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-            animation: backgroundFloat 20s ease-in-out infinite;
-        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
 
-        @keyframes backgroundFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(1deg); }
-            66% { transform: translateY(10px) rotate(-1deg); }
-        }
-
-        .container {
-            max-width: 1200px;
+        .wrap {
+            max-width: 1120px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 24px;
         }
 
-
-
-        /* Header */
-        header {
+        /* Hero */
+        .hero {
+            padding: 80px 0 64px;
             text-align: center;
-            padding: 60px 0 40px;
-            color: white;
-            position: relative;
-            overflow: hidden;
         }
 
-
-
-        .logo {
-            font-size: 4rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: logoGlow 3s ease-in-out infinite alternate;
-            text-shadow: 0 0 30px rgba(255,255,255,0.3);
-        }
-
-        @keyframes logoGlow {
-            0% { filter: brightness(1) drop-shadow(0 0 20px rgba(255,255,255,0.3)); }
-            100% { filter: brightness(1.2) drop-shadow(0 0 30px rgba(255,255,255,0.5)); }
-        }
-
-        .subtitle {
-            font-size: 1.3rem;
-            font-weight: 400;
-            max-width: 700px;
-            margin: 0 auto 40px;
-            line-height: 1.7;
-            opacity: 0.95;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            animation: fadeInUp 1s ease 0.5s both;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Main Content */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            margin-bottom: 50px;
-            animation: fadeInUp 1s ease 0.8s both;
-        }
-
-        .analysis-section {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid var(--border-color);
-            position: relative;
-            overflow: hidden;
-        }
-
-
-
-        .analysis-section:hover {
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-            border-color: rgba(102, 126, 234, 0.3);
-        }
-
-        .section-title {
-            font-size: 1.8rem;
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.25rem);
             font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 16px;
         }
 
-
-
-        .section-title i {
-            color: #667eea;
-            font-size: 1.5rem;
-            animation: iconPulse 2s ease-in-out infinite;
+        .hero p {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto 40px;
         }
 
-        @keyframes iconPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Form Styles */
-        .analysis-form {
+        .analyze-form {
+            max-width: 640px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
-        .form-group {
-            position: relative;
+        .site-picker { text-align: left; }
+
+        .site-picker-label {
+            display: block;
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
         }
 
-        .form-control {
+        .site-select {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border-color);
+            padding: 12px 40px 12px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 10px;
-            font-size: 0.95rem;
-            background: var(--card-bg);
-            transition: all 0.3s ease;
+            color: var(--text);
             font-family: inherit;
-            color: var(--text-color);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: scale(1.02);
-        }
-
-        /* Enhanced Select Styles */
-        select.form-control {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 12px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 40px;
+            font-size: 0.95rem;
             cursor: pointer;
             appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238B95A8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 18px;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        select.form-control:hover {
-            border-color: #667eea;
-            background-color: rgba(102, 126, 234, 0.05);
+        .site-select:hover { border-color: rgba(255,255,255,0.12); }
+
+        .site-select:focus {
+            outline: none;
+            border-color: rgba(109, 93, 252, 0.5);
+            box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.15);
         }
 
-        select.form-control option {
-            background: var(--card-bg);
-            color: var(--text-color);
-            padding: 12px;
-            border: none;
+        .site-select option,
+        .site-select optgroup {
+            background: var(--card);
+            color: var(--text);
         }
 
-        select.form-control option:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        /* Optgroup Styles */
-        select.form-control optgroup {
-            background: var(--card-bg);
-            color: #667eea;
-            font-weight: 600;
-            font-size: 0.9rem;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        select.form-control optgroup option {
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-weight: normal;
-            padding: 8px 12px;
-            margin-left: 10px;
-        }
-
-        select.form-control optgroup option:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        /* Custom Select Container */
-        .select-container {
-            position: relative;
-        }
-
-        .select-container::after {
-            content: '';
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid #667eea;
-            pointer-events: none;
-            transition: transform 0.3s ease;
-        }
-
-        .select-container:focus-within::after {
-            transform: translateY(-50%) rotate(180deg);
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .url-row {
             display: flex;
-            align-items: center;
+            gap: 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .url-row:focus-within {
+            border-color: rgba(109, 93, 252, 0.5);
+            box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.15);
+        }
+
+        .url-row input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1rem;
+            padding: 12px 16px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .url-row input::placeholder { color: #5a6478; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .hero-tags {
+            display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            gap: 20px;
+            margin-top: 28px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s ease;
+        .hero-tags span::before {
+            content: '✓';
+            color: var(--success);
+            margin-right: 6px;
+            font-weight: 600;
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-            background: linear-gradient(45deg, #764ba2, #667eea);
-        }
-
-        .btn:active {
-            transform: translateY(-2px) scale(1.02);
-        }
-
-        .btn i {
-            font-size: 1.2rem;
-            animation: iconBounce 2s ease-in-out infinite;
-        }
-
-        @keyframes iconBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-2px); }
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            display: none;
-            margin-top: 20px;
+        .error-banner {
+            max-width: 640px;
+            margin: 16px auto 0;
+            padding: 12px 16px;
+            background: rgba(255, 82, 82, 0.1);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+            border-radius: 8px;
+            color: #ff8a80;
+            font-size: 0.9rem;
+            text-align: left;
         }
 
         .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(102, 126, 234, 0.2);
-            border-radius: 4px;
+            display: none;
+            max-width: 640px;
+            margin: 20px auto 0;
+        }
+
+        .progress-bar.show { display: block; }
+
+        .progress-track {
+            height: 4px;
+            background: var(--card);
+            border-radius: 2px;
             overflow: hidden;
-            position: relative;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border-radius: 4px;
             width: 0%;
+            background: var(--primary);
+            border-radius: 2px;
             transition: width 0.3s ease;
-            position: relative;
         }
 
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 1.5s infinite;
+        .progress-label {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        /* Sections */
+        section { padding: 64px 0; }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            margin-bottom: 12px;
         }
 
-        /* Loading Animation */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading-dots {
-            display: inline-block;
-            position: relative;
-            width: 80px;
-            height: 80px;
-        }
-
-        .loading-dots div {
-            position: absolute;
-            top: 33px;
-            width: 13px;
-            height: 13px;
-            border-radius: 50%;
-            background: #667eea;
-            animation-timing-function: cubic-bezier(0, 1, 1, 0);
-        }
-
-        .loading-dots div:nth-child(1) {
-            left: 8px;
-            animation: loading-dots1 0.6s infinite;
-        }
-
-        .loading-dots div:nth-child(2) {
-            left: 8px;
-            animation: loading-dots2 0.6s infinite;
-        }
-
-        .loading-dots div:nth-child(3) {
-            left: 32px;
-            animation: loading-dots2 0.6s infinite;
-        }
-
-        .loading-dots div:nth-child(4) {
-            left: 56px;
-            animation: loading-dots3 0.6s infinite;
-        }
-
-        @keyframes loading-dots1 {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes loading-dots3 {
-            0% { transform: scale(1); }
-            100% { transform: scale(0); }
-        }
-
-        @keyframes loading-dots2 {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(24px, 0); }
-        }
-
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            animation: fadeInUp 1s ease 1.2s both;
-        }
-
-        .feature-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 35px 20px;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid var(--border-color);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-
-
-        .feature-card:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            border-color: rgba(102, 126, 234, 0.2);
-        }
-
-        .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 1.8rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .feature-title {
-            font-size: 1.1rem;
+        .section-title {
+            font-size: 1.75rem;
             font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text-color);
-            transition: color 0.3s ease;
+            letter-spacing: -0.02em;
+            margin-bottom: 32px;
         }
 
-        .feature-card:hover .feature-title {
-            color: #667eea;
+        /* Features — horizontal audit cards */
+        .features-header {
+            margin-bottom: 28px;
         }
 
-        .feature-desc {
-            color: var(--text-color);
-            opacity: 0.8;
-            line-height: 1.5;
-            font-size: 0.95rem;
-            transition: opacity 0.3s ease;
+        .features-header .section-title {
+            margin-bottom: 0;
         }
 
-        .feature-card:hover .feature-desc {
-            opacity: 1;
+        .features-lead {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+            max-width: 520px;
+            margin-top: 10px;
+            line-height: 1.55;
         }
 
-
-
-        /* Error Message */
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #c33;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(6, auto);
+            grid-auto-flow: column;
             gap: 10px;
         }
 
-        /* Custom URL Input */
-        .custom-url {
-            display: none; 
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .custom-url.show {
-            display: block;
-        }
-
-        /* Notifications */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 15px 20px;
-            box-shadow: var(--shadow);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            border-left: 4px solid #4CAF50;
-        }
-
-        .notification.error {
-            border-left: 4px solid #f44336;
-        }
-
-        .notification.warning {
-            border-left: 4px solid #FF9800;
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .main-content {
-                gap: 25px;
-            }
-
-            .logo {
-                font-size: 2.5rem;
-            }
-
-            .subtitle {
-                font-size: 1rem;
-            }
-
-            .analysis-section {
-                padding: 30px 20px;
-            }
-
-            .features {
-                grid-template-columns: repeat(2, 1fr);
+            .features-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: none;
+                grid-auto-flow: row;
             }
         }
 
         @media (max-width: 480px) {
-            .features {
-                grid-template-columns: 1fr;
-            }
+            .url-row { flex-direction: column; }
         }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(255, 255, 255, 0.14);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .feature-card-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .feature-card[data-tone="violet"] .feature-icon { background: rgba(109, 93, 252, 0.14); color: #a89bff; }
+        .feature-card[data-tone="cyan"] .feature-icon { background: rgba(0, 212, 255, 0.12); color: var(--accent); }
+        .feature-card[data-tone="green"] .feature-icon { background: rgba(0, 200, 83, 0.12); color: var(--success); }
+        .feature-card[data-tone="amber"] .feature-icon { background: rgba(255, 179, 0, 0.12); color: var(--warning); }
+        .feature-card[data-tone="rose"] .feature-icon { background: rgba(244, 114, 182, 0.12); color: #f472b6; }
+        .feature-card[data-tone="slate"] .feature-icon { background: rgba(100, 116, 139, 0.18); color: #94a3b8; }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .feature-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .feature-body {
+            flex: 1;
+            min-width: 0;
+            padding-top: 2px;
+        }
+
+        .feature-body h3 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-body p {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        .feature-num {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.18);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.04em;
+        }
+
+        /* Report preview — mirrors result.html layout */
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 560px;
+            margin-bottom: 28px;
+        }
+
+        .badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .badge-success { background: rgba(0, 200, 83, 0.12); color: var(--success); }
+        .badge-warning { background: rgba(255, 179, 0, 0.12); color: var(--warning); }
+        .badge-accent { background: rgba(0, 212, 255, 0.12); color: var(--accent); }
     </style>
 </head>
 <body>
+    <div class="wrap">
+        <nav class="nav">
+            <a href="{{ url_for('index') }}" class="brand">
+                <span class="brand-mark">SB</span>
+                Sonic Boom
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="active">Главная</a>
+                <a href="{{ url_for('history') }}">История</a>
+            </div>
+        </nav>
 
+        <header class="hero">
+            <h1>Анализируйте сайты за секунды</h1>
+            <p>SEO, безопасность, производительность и техническое состояние в одном отчёте.</p>
 
-    <!-- Notification Container -->
-    <div id="notificationContainer"></div>
-
-    <div class="container">
-    <header>
-            <h1 class="logo">
-                <i class="fas fa-bolt"></i> Sonic Boom
-            </h1>
-                        <p class="subtitle">
-                Мощный инструмент для комплексного анализа веб-сайтов. Получите детальную информацию о производительности, 
-                SEO-оптимизации, безопасности и технических аспектах вашего сайта.
-        </p>
-    </header>
-    
-        <div class="main-content">
-            <div class="analysis-section">
-                <h2 class="section-title">
-                    <i class="fas fa-search"></i>
-                    Анализ сайта
-                </h2>
-                
-                <form class="analysis-form" method="post" id="analysisForm">
-                    <div class="form-group">
-                        <label for="popularSites" style="display: block; margin-bottom: 10px; font-weight: 500; color: var(--text-color);">
-                            <i class="fas fa-globe" style="margin-right: 8px; color: #667eea;"></i>
-                            Выберите популярный сайт или введите свой URL:
-                        </label>
-                        <div class="select-container">
-                            <select class="form-control" id="popularSites" name="popular_sites">
-                                
-                                <option value="" disabled selected>Выберите сайт из списка</option>
-
-                                <optgroup label="✏️ Пользовательский ввод">
-                                    <option value="custom">Ввести свой URL</option>
-                                </optgroup>
-                                
-                                <optgroup label="🔍 Поисковые системы">
-                                    <option value="https://www.google.com">Google</option>
-                                    <option value="https://yandex.ru">Yandex</option>
-                                    <option value="https://www.bing.com">Bing</option>
-                                    <option value="https://duckduckgo.com">DuckDuckGo</option>
-                                    <option value="https://www.baidu.com">Baidu</option>
-                                </optgroup>
-                                
-                                <optgroup label="📺 Медиа и видео">
-                                    <option value="https://www.youtube.com">YouTube</option>
-                                    <option value="https://www.twitch.tv">Twitch</option>
-                                    <option value="https://www.tiktok.com">TikTok</option>
-                                    <option value="https://discord.com">Discord</option>
-                                    <option value="https://trovo.live">Trovo</option>
-                                    <option value="https://rutube.ru">RuTube</option>
-                                    <option value="https://vk.com/video">VK Clips</option>
-                                </optgroup>
-                                
-                                <optgroup label="💬 Социальные сети">
-                <option value="https://vk.com">VK</option>
-                                    <option value="https://t.me">Telegram</option>
-                                    <option value="https://www.instagram.com">Instagram</option>
-                                    <option value="https://www.facebook.com">Facebook</option>
-                                    <option value="https://twitter.com">Twitter</option>
-                                    <option value="https://www.reddit.com">Reddit</option>
-                                </optgroup>
-                                
-                                <optgroup label="💻 Разработка и образование">
-                                    <option value="https://github.com">GitHub</option>
-                                    <option value="https://stackoverflow.com">Stack Overflow</option>
-                                    <option value="https://www.wikipedia.org">Wikipedia</option>
-                                    <option value="https://www.odin.study">Odin Study</option>
-                                </optgroup>
-                                
-                                <optgroup label="🛒 Электронная коммерция">
-                                    <option value="https://www.ozon.ru">Ozon</option>
-                                    <option value="https://market.yandex.ru">Яндекс Маркет</option>
-                                    <option value="https://www.wildberries.ru">Wildberries</option>
-                                    <option value="https://www.aliexpress.com">AliExpress</option>
-                                    <option value="https://www.amazon.com">Amazon</option>
-                                
-                                </optgroup> 
-            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group custom-url" id="customUrlGroup">
-                        <label for="urlInput" style="display: block; margin-bottom: 10px; font-weight: 500; color: var(--text-color);">
-                            <i class="fas fa-link" style="margin-right: 8px; color: #667eea;"></i>
-                            Введите URL сайта:
-                        </label>
-                        <input type="url" class="form-control" id="urlInput" name="url" 
-                               placeholder="🔗 https://example.com" required>
-                    </div>
-
-                    <button type="submit" class="btn" id="analyzeButton" style="display: none;">
-                        <i class="fas fa-rocket"></i>
-                        Начать анализ
-                    </button>
-        </form>
-
-                <!-- Progress Bar -->
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <p style="text-align: center; margin-top: 10px; color: var(--text-color);">
-                        Выполняется анализ... <span id="progressText">0%</span>
-                    </p>
+            <form class="analyze-form" method="post" id="analysisForm">
+                <div class="site-picker">
+                    <label class="site-picker-label" for="popularSites">Быстрый выбор сайта</label>
+                    <select id="popularSites" class="site-select" aria-label="Выберите сайт из списка">
+                        <option value="" selected>Выберите сайт из списка…</option>
+                        <optgroup label="Поисковые системы">
+                            <option value="https://www.google.com">Google</option>
+                            <option value="https://yandex.ru">Yandex</option>
+                            <option value="https://www.bing.com">Bing</option>
+                            <option value="https://duckduckgo.com">DuckDuckGo</option>
+                        </optgroup>
+                        <optgroup label="Медиа и видео">
+                            <option value="https://www.youtube.com">YouTube</option>
+                            <option value="https://www.twitch.tv">Twitch</option>
+                            <option value="https://www.tiktok.com">TikTok</option>
+                            <option value="https://discord.com">Discord</option>
+                            <option value="https://rutube.ru">RuTube</option>
+                        </optgroup>
+                        <optgroup label="Социальные сети">
+                            <option value="https://vk.com">VK</option>
+                            <option value="https://t.me">Telegram</option>
+                            <option value="https://www.instagram.com">Instagram</option>
+                            <option value="https://www.reddit.com">Reddit</option>
+                        </optgroup>
+                        <optgroup label="Разработка и образование">
+                            <option value="https://github.com">GitHub</option>
+                            <option value="https://stackoverflow.com">Stack Overflow</option>
+                            <option value="https://www.wikipedia.org">Wikipedia</option>
+                            <option value="https://www.odin.study">Odin Study</option>
+                        </optgroup>
+                        <optgroup label="Электронная коммерция">
+                            <option value="https://www.ozon.ru">Ozon</option>
+                            <option value="https://market.yandex.ru">Яндекс Маркет</option>
+                            <option value="https://www.wildberries.ru">Wildberries</option>
+                            <option value="https://www.amazon.com">Amazon</option>
+                        </optgroup>
+                    </select>
                 </div>
-
-                <div class="loading" id="loading">
-                    <div class="loading-dots">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </div>
-                    <p>Выполняется анализ сайта...</p>
+                <div class="url-row">
+                    <input type="url" name="url" id="urlInput"
+                           placeholder="https://example.com" required
+                           autocomplete="url" spellcheck="false">
+                    <button type="submit" class="btn-primary" id="analyzeButton">Начать анализ</button>
                 </div>
-        
-        {% if error %}
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        {{ error }}
-                    </div>
-        {% endif %}
+            </form>
 
-                <!-- History Button -->
-                <div style="margin-top: 60px; text-align: center;">
-                    <a href="{{ url_for('history') }}" class="btn" style="display: inline-flex; background: linear-gradient(45deg, #667eea, #764ba2);">
-                        <i class="fas fa-chart-line"></i>
-                        История анализов и аналитика
-                    </a>
+            {% if error %}
+            <div class="error-banner">{{ error }}</div>
+            {% endif %}
+
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
+                <p class="progress-label">Выполняется анализ… <span id="progressText">0%</span></p>
             </div>
 
-            <div class="analysis-section">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-line"></i>
-                    Возможности анализа
-                </h2>
-                
-                <div class="features">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-tachometer-alt"></i>
-                        </div>
-                        <h3 class="feature-title">Скорость загрузки</h3>
-                        <p class="feature-desc">Измерение времени загрузки страницы для оценки производительности</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-network-wired"></i>
-                        </div>
-                        <h3 class="feature-title">DNS информация</h3>
-                        <p class="feature-desc">Получение IP-адреса и информации о домене</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3 class="feature-title">SSL сертификат</h3>
-                        <p class="feature-desc">Проверка безопасности и валидности SSL-сертификата</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-signal"></i>
-                        </div>
-                        <h3 class="feature-title">Сетевая задержка</h3>
-                        <p class="feature-desc">Измерение ping-задержки для оценки сетевого соединения</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h3 class="feature-title">SEO оценка</h3>
-                        <p class="feature-desc">Комплексная оценка SEO с детальным анализом технических аспектов</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h3 class="feature-title">Мобильная оптимизация</h3>
-                        <p class="feature-desc">Оценка адаптивности и производительности на мобильных устройствах</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-link"></i>
-                        </div>
-                        <h3 class="feature-title">Структура URL</h3>
-                        <p class="feature-desc">Анализ чистоты и логичности структуры URL адресов</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <h3 class="feature-title">Безопасность</h3>
-                        <p class="feature-desc">Проверка HTTP заголовков безопасности и настроек защиты</p>
-                    </div>
-                </div>
+            <div class="hero-tags">
+                <span>SSL</span>
+                <span>SEO</span>
+                <span>Security</span>
+                <span>Performance</span>
+                <span>Redirects</span>
+                <span>Monitoring Ready</span>
             </div>
-        </div>
+        </header>
 
+        <section id="features">
+            <div class="features-header">
+                <p class="section-label">Возможности</p>
+                <h2 class="section-title">12 параметров технического аудита</h2>
+                <p class="features-lead">Каждая проверка покрывает отдельный слой здоровья сайта — от сертификата и заголовков до SEO, скорости и истории изменений.</p>
+            </div>
+            <div class="features-grid">
+                <article class="feature-card" data-tone="violet">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+                        <div class="feature-body">
+                            <h3>SSL</h3>
+                            <p>Сертификат, срок действия, SAN и издатель</p>
+                        </div>
+                        <span class="feature-num">01</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="green">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8.5-7 9-4-0.5-7-4.6-7-9V7l7-4z"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Security Headers</h3>
+                            <p>HSTS, CSP, X-Frame-Options и другие заголовки</p>
+                        </div>
+                        <span class="feature-num">02</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="cyan">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 17V11"/><path d="M12 17V7"/><path d="M16 17v-4"/></svg></div>
+                        <div class="feature-body">
+                            <h3>SEO Audit</h3>
+                            <p>Комплексная оценка технического SEO</p>
+                        </div>
+                        <span class="feature-num">03</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="violet">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M7 7h.01"/><path d="M7 3h5l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M12 3v5h5"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Meta Tags</h3>
+                            <p>Title, description, canonical, Open Graph</p>
+                        </div>
+                        <span class="feature-num">04</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="amber">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M7 7h10"/><path d="M13 7l4 4-4 4"/><path d="M17 17H7"/><path d="M11 17l-4-4 4-4"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Redirects</h3>
+                            <p>Цепочка редиректов и HTTP → HTTPS</p>
+                        </div>
+                        <span class="feature-num">05</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="slate">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 14h3"/><path d="M1 9h3"/><path d="M1 14h3"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Robots & Sitemap</h3>
+                            <p>robots.txt, sitemap.xml и блокировка индексации</p>
+                        </div>
+                        <span class="feature-num">06</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="amber">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Performance</h3>
+                            <p>Время загрузки и размер страницы</p>
+                        </div>
+                        <span class="feature-num">07</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="cyan">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                        <div class="feature-body">
+                            <h3>DNS</h3>
+                            <p>Резолвинг домена и IP-адрес</p>
+                        </div>
+                        <span class="feature-num">08</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="violet">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M5 12.55a8 8 0 0 1 14.08 0"/><path d="M8.5 16.05a4 4 0 0 1 7 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Latency</h3>
+                            <p>Сетевая задержка до сервера</p>
+                        </div>
+                        <span class="feature-num">09</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="rose">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Images</h3>
+                            <p>ALT-тексты и доступность изображений</p>
+                        </div>
+                        <span class="feature-num">10</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="green">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7l8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+                        <div class="feature-body">
+                            <h3>Compression</h3>
+                            <p>Gzip и Brotli в ответе сервера</p>
+                        </div>
+                        <span class="feature-num">11</span>
+                    </div>
+                </article>
+                <article class="feature-card" data-tone="cyan">
+                    <div class="feature-card-inner">
+                        <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg></div>
+                        <div class="feature-body">
+                            <h3>History</h3>
+                            <p>История проверок и отслеживание изменений</p>
+                        </div>
+                        <span class="feature-num">12</span>
+                    </div>
+                </article>
+            </div>
+        </section>
 
+        <section>
+            <p class="section-label">Пример отчёта</p>
+            <h2 class="section-title">Результат анализа</h2>
+            <p class="section-desc">
+                Так выглядит страница после проверки: карточки метрик, сетка технического аудита и SEO-оценка с буквенным рейтингом.
+            </p>
+            {% include 'partials/landing_report_preview.html' %}
+        </section>
+
+        {% include 'partials/footer.html' %}
     </div>
 
     <script>
-
-        // Form Logic
+        const form = document.getElementById('analysisForm');
         const popularSites = document.getElementById('popularSites');
-        const customUrlGroup = document.getElementById('customUrlGroup');
         const urlInput = document.getElementById('urlInput');
         const analyzeButton = document.getElementById('analyzeButton');
-        const analysisForm = document.getElementById('analysisForm');
-        const loading = document.getElementById('loading');
-        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
 
         popularSites.addEventListener('change', function() {
-            const selectedValue = this.value;
-            
-            if (selectedValue === 'custom') {
-                customUrlGroup.classList.add('show');
-                analyzeButton.style.display = 'flex';
+            if (this.value) {
+                urlInput.value = this.value;
                 urlInput.focus();
-            } else if (selectedValue !== '') {
-                customUrlGroup.classList.remove('show');
-                analyzeButton.style.display = 'flex';
-                urlInput.value = selectedValue;
-            } else {
-                customUrlGroup.classList.remove('show');
-                analyzeButton.style.display = 'none';
-                urlInput.value = '';
             }
         });
 
-        analysisForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const url = urlInput.value;
-            if (!url) {
-                showNotification('Пожалуйста, выберите сайт или введите URL', 'error');
-                return;
-            }
-
-            // Show progress
-            progressContainer.style.display = 'block';
-            analyzeButton.style.display = 'none';
-            
-            // Simulate progress
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 90) progress = 90;
-                
-                progressFill.style.width = progress + '%';
-                progressText.textContent = Math.round(progress) + '%';
-            }, 200);
-
-            // Submit form after delay
-            setTimeout(() => {
-                clearInterval(progressInterval);
-                progressFill.style.width = '100%';
-                progressText.textContent = '100%';
-                
-                setTimeout(() => {
-                    this.submit();
-                }, 500);
-            }, 2000);
-        });
-
-        // Notification System
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
-                ${message}
-            `;
-            
-            document.getElementById('notificationContainer').appendChild(notification);
-            
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-            
-            // Hide notification
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
+        const params = new URLSearchParams(window.location.search);
+        const presetUrl = params.get('url');
+        if (presetUrl) {
+            urlInput.value = presetUrl;
         }
 
-        // Add smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!urlInput.value.trim()) return;
 
-        // Page load animation
-        document.addEventListener('DOMContentLoaded', function() {
-            document.body.style.opacity = '0';
-            document.body.style.transform = 'translateY(20px)';
-            
+            progressBar.classList.add('show');
+            analyzeButton.disabled = true;
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 12;
+                if (progress > 92) progress = 92;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 180);
+
             setTimeout(() => {
-                document.body.style.transition = 'all 0.6s ease';
-                document.body.style.opacity = '1';
-                document.body.style.transform = 'translateY(0)';
-            }, 100);
+                clearInterval(interval);
+                progressFill.style.width = '100%';
+                progressText.textContent = '100%';
+                form.submit();
+            }, 2000);
         });
     </script>
 </body>

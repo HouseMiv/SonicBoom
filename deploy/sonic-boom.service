@@ -1,0 +1,25 @@
+[Unit]
+Description=Sonic Boom v1.0.0-beta
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/sonic-boom
+EnvironmentFile=-/opt/sonic-boom/.env
+Environment=WEB_CONCURRENCY=2
+Environment=BIND=127.0.0.1:8000
+Environment=GUNICORN_TIMEOUT=120
+ExecStart=/opt/sonic-boom/venv/bin/gunicorn \
+  --workers ${WEB_CONCURRENCY} \
+  --bind ${BIND} \
+  --timeout ${GUNICORN_TIMEOUT} \
+  --access-logfile - \
+  --error-logfile - \
+  app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

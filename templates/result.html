@@ -3,793 +3,956 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Результат анализа - Sonic Boom</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Результат анализа — Sonic Boom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
 
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text-color: #333;
-            --border-color: #e1e5e9;
-            --shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --bg: #0B1020;
+            --card: #131A2E;
+            --card-elevated: #1a2238;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #E8ECF4;
+            --text-muted: #8B95A8;
+            --primary: #6D5DFC;
+            --primary-hover: #5A4BE0;
+            --accent: #00D4FF;
+            --success: #00C853;
+            --warning: #FFB300;
+            --error: #FF5252;
+            --card-bg: #131A2E;
+            --text-color: #E8ECF4;
+            --border-color: rgba(255, 255, 255, 0.08);
         }
 
-        /* Dark theme chart improvements */
-        [data-theme="dark"] .chart-container {
-            background: rgba(55, 55, 55, 0.8);
-            border: 1px solid #555555;
-        }
-
-        [data-theme="dark"] canvas {
-            filter: brightness(1.2) contrast(1.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--primary-gradient);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            color: var(--text-color);
-            padding: 20px;
-            transition: all 0.3s ease;
         }
 
-        .container {
-            max-width: 1200px;
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .wrap {
+            max-width: 1120px;
             margin: 0 auto;
+            padding: 0 24px 48px;
         }
 
+        /* Page header */
+        .page-header { margin-bottom: 32px; margin-top: 32px; }
 
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            margin-bottom: 12px;
         }
 
-        .logo {
-            font-size: 2.5rem;
+        .page-header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
             font-weight: 700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .logo i {
-            color: #ffd700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
         }
 
         .analyzed-url {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--accent);
             word-break: break-all;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
-            border-radius: 25px;
-            display: inline-block;
-            margin-top: 10px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 10px;
         }
+
+        .analyzed-url i { color: var(--text-muted); }
 
         /* Results Grid */
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
         }
 
         .result-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color 0.2s;
         }
 
-        .result-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
-
-        .result-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-        }
+        .result-card:hover { border-color: rgba(255,255,255,0.12); }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 16px;
         }
 
         .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            color: white;
+            font-size: 1.1rem;
+            background: rgba(109, 93, 252, 0.12);
+            color: var(--primary);
+            flex-shrink: 0;
         }
 
-        .load-time .card-icon { background: linear-gradient(45deg, #4CAF50, #45a049); }
-        .dns-info .card-icon { background: linear-gradient(45deg, #2196F3, #1976D2); }
-        .ssl-info .card-icon { background: linear-gradient(45deg, #FF9800, #F57C00); }
-        .ping-info .card-icon { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
-        .size-info .card-icon { background: linear-gradient(45deg, #E91E63, #C2185B); }
-        .seo-info .card-icon { background: linear-gradient(45deg, #00BCD4, #0097A7); }
+        .load-time .card-icon { background: rgba(0, 200, 83, 0.12); color: var(--success); }
+        .dns-info .card-icon { background: rgba(0, 212, 255, 0.12); color: var(--accent); }
+        .ssl-info .card-icon { background: rgba(255, 179, 0, 0.12); color: var(--warning); }
+        .ping-info .card-icon { background: rgba(109, 93, 252, 0.12); color: var(--primary); }
+        .size-info .card-icon { background: rgba(255, 82, 82, 0.12); color: var(--error); }
+
+        /* Audit Section */
+        .audit-section { margin-bottom: 32px; }
+
+        .audit-section-header { margin-bottom: 20px; }
+
+        .audit-section-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .audit-section-header h2 i { color: var(--primary); }
+
+        .audit-section-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .audit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .audit-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .audit-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .audit-card-header i {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(109, 93, 252, 0.12);
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+
+        .audit-card-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .audit-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.875rem;
+        }
+
+        .audit-row:last-child { border-bottom: none; }
+
+        .audit-label {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .audit-value {
+            text-align: right;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .audit-chain {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.825rem;
+        }
+
+        .audit-chain ol {
+            margin: 8px 0 0 18px;
+            padding: 0;
+            color: var(--text-muted);
+        }
+
+        .audit-chain li {
+            margin: 4px 0;
+            word-break: break-all;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-ok { background: rgba(0, 200, 83, 0.12); color: var(--success); }
+        .badge-warning { background: rgba(255, 179, 0, 0.12); color: var(--warning); }
+        .badge-error { background: rgba(255, 82, 82, 0.12); color: var(--error); }
+        .badge-info { background: rgba(0, 212, 255, 0.12); color: var(--accent); }
+
+        .audit-card-wide { grid-column: 1 / -1; }
+
+        @media (min-width: 900px) {
+            .audit-card-wide { grid-column: span 2; }
+        }
+
+        /* Comparison */
+        .comparison-banner {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .comparison-banner h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comparison-banner h3 i { color: var(--primary); }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .comparison-item {
+            padding: 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .comparison-item .label {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .comparison-item .values {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .delta-up { color: var(--error); }
+        .delta-down { color: var(--success); }
+        .delta-neutral { color: var(--text-muted); }
 
         .card-title {
-            font-size: 1.3rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            color: var(--text-color);
         }
 
         .card-value {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #667eea;
-            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
         }
 
         .card-description {
-            color: var(--text-color);
-            opacity: 0.7;
+            color: var(--text-muted);
             line-height: 1.5;
-            font-size: 0.95rem;
+            font-size: 0.875rem;
         }
 
         .card-description small {
             display: block;
-            margin-top: 5px;
-            opacity: 0.8;
-            font-size: 0.85rem;
+            margin-top: 4px;
+            font-size: 0.8rem;
         }
 
-        /* SEO Details Styles */
+        /* SEO Details */
         .seo-details {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(102, 126, 234, 0.03);
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
+            margin-top: 0;
+            padding: 0;
+            background: none;
+            border: none;
+            border-radius: 0;
         }
 
         .details-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .details-header h4 {
-            font-size: 1.1rem;
+            font-size: 0.9375rem;
             font-weight: 600;
-            color: var(--text-color);
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        .details-header h4 i { color: var(--primary); }
 
         .summary-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
+            padding: 4px 10px;
+            background: rgba(109, 93, 252, 0.12);
+            color: var(--primary);
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 500;
         }
 
         .analysis-results {
-            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .result-item {
-            display: flex;
-            align-items: flex-start;
+            display: grid;
+            grid-template-columns: 88px 1fr;
+            align-items: center;
             gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
         }
 
-        .result-item:last-child {
-            border-bottom: none;
+        .result-item:last-child { border-bottom: none; }
+
+        .result-item:nth-child(even) {
+            background: rgba(255, 255, 255, 0.035);
         }
 
-        .result-icon {
-            flex-shrink: 0;
-            width: 24px;
-            height: 24px;
-            display: flex;
+        .result-item.is-ok { border-left: 3px solid var(--success); }
+        .result-item.is-warn { border-left: 3px solid var(--warning); }
+        .result-item.is-error { border-left: 3px solid var(--error); }
+        .result-item.is-info { border-left: 3px solid var(--accent); }
+
+        .result-status {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            font-size: 0.9rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
         }
 
-        .result-icon .fa-check-circle {
-            color: #4CAF50;
+        .result-item.is-ok .result-status {
+            background: rgba(0, 200, 83, 0.12);
+            color: var(--success);
         }
 
-        .result-icon .fa-exclamation-triangle {
-            color: #FF9800;
+        .result-item.is-warn .result-status {
+            background: rgba(255, 179, 0, 0.12);
+            color: var(--warning);
         }
 
-        .result-icon .fa-times-circle {
-            color: #f44336;
+        .result-item.is-error .result-status {
+            background: rgba(255, 82, 82, 0.12);
+            color: var(--error);
         }
 
-        .result-icon .fa-info-circle {
-            color: #667eea;
+        .result-item.is-info .result-status {
+            background: rgba(0, 212, 255, 0.12);
+            color: var(--accent);
         }
 
         .result-text {
-            flex: 1;
-            color: var(--text-color);
-            font-size: 0.95rem;
+            font-size: 0.875rem;
+            line-height: 1.45;
+            color: var(--text);
+        }
+
+        .security-headers {
+            padding: 16px;
+            background: rgba(0, 200, 83, 0.04);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 200, 83, 0.12);
+        }
+
+        .security-headers.security-warning {
+            background: rgba(255, 179, 0, 0.04);
+            border-color: rgba(255, 179, 0, 0.12);
+        }
+
+        .headers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 8px;
+        }
+
+        .header-item {
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .header-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .header-name {
+            font-weight: 600;
+            font-size: 0.8125rem;
+        }
+
+        .header-badge {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .header-badge.ok {
+            background: rgba(0, 200, 83, 0.12);
+            color: var(--success);
+        }
+
+        .header-badge.missing {
+            background: rgba(255, 179, 0, 0.12);
+            color: var(--warning);
+        }
+
+        .header-protects {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .header-protects strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .header-recommend {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--warning);
+            padding: 8px 10px;
+            background: rgba(255, 179, 0, 0.06);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 179, 0, 0.12);
+        }
+
+        .header-recommend strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .header-item.is-missing {
+            border-color: rgba(255, 179, 0, 0.2);
+            background: rgba(255, 179, 0, 0.03);
+        }
+
+        .headers-section-title {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin: 0 0 10px;
+        }
+
+        .headers-section-title + .headers-grid { margin-bottom: 16px; }
+
+        .headers-section-title.missing-title {
+            color: var(--warning);
+            margin-top: 4px;
+        }
+
+        .header-description {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            line-height: 1.35;
+            margin-bottom: 6px;
+        }
+
+        .header-value-short {
+            display: block;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.6875rem;
+            color: var(--text-muted);
+            word-break: break-all;
             line-height: 1.4;
         }
 
-        .aspects-overview {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
+        .header-value-details {
+            margin-top: 4px;
         }
 
-        .aspects-overview h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 15px;
+        .header-value-details summary {
+            font-size: 0.6875rem;
+            color: var(--accent);
+            cursor: pointer;
+            user-select: none;
+            list-style: none;
         }
 
-        .seo-score {
-            margin-top: 10px;
-            text-align: center;
-            padding: 8px;
-            background: rgba(102, 126, 234, 0.1);
+        .header-value-details summary::-webkit-details-marker { display: none; }
+
+        .header-value-details summary::before {
+            content: '▸ ';
+            display: inline-block;
+            transition: transform 0.15s;
+        }
+
+        .header-value-details[open] summary::before { transform: rotate(90deg); }
+
+        .header-value-code {
+            display: block;
+            margin-top: 8px;
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.625rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            word-break: break-all;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .security-summary {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(0, 200, 83, 0.08);
             border-radius: 8px;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: var(--text-muted);
         }
 
-        .seo-score small {
-            color: var(--text-color);
-            font-weight: 600;
-            font-size: 0.9rem;
+        .security-headers.security-warning .security-summary {
+            background: rgba(255, 179, 0, 0.08);
         }
 
-        /* Status Colors */
-        .status-excellent {
-            color: #FFD700 !important;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        }
+        .security-summary strong { color: var(--text); }
 
-        .status-good {
-            color: #4CAF50 !important;
-        }
-
-        .status-warning {
-            color: #FF9800 !important;
-        }
-
-        .status-error {
-            color: #f44336 !important;
-        }
+        .status-excellent { color: var(--accent) !important; }
+        .status-good { color: var(--success) !important; }
+        .status-warning { color: var(--warning) !important; }
+        .status-error { color: var(--error) !important; }
 
 
 
         /* Ping Results */
         .ping-results {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            margin-bottom: 40px;
-            border: 1px solid var(--border-color);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
 
         .ping-header {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 14px;
+            margin-bottom: 16px;
         }
 
         .ping-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(109, 93, 252, 0.12);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
+            color: var(--primary);
+            font-size: 1rem;
         }
 
         .ping-title {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 600;
-            color: var(--text-color);
         }
 
         .ping-output {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            background: #0a0e1a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.825rem;
             line-height: 1.6;
-            color: var(--text-color);
-            max-height: 300px;
+            color: var(--text-muted);
+            max-height: 280px;
             overflow-y: auto;
             white-space: pre-wrap;
         }
 
         /* SEO Results */
         .seo-results {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            margin-bottom: 40px;
-            border: 1px solid var(--border-color);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
         }
 
         .seo-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
             margin-bottom: 20px;
         }
 
         .seo-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #00BCD4, #0097A7);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(0, 212, 255, 0.12);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
+            color: var(--accent);
+            font-size: 1rem;
         }
 
         .seo-title {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: 600;
-            color: var(--text-color);
         }
 
         .seo-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 25px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .seo-main-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-            border-radius: 15px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
+            gap: 32px;
+            margin-bottom: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(109, 93, 252, 0.1) 0%, rgba(0, 212, 255, 0.06) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(109, 93, 252, 0.18);
+            flex-wrap: wrap;
         }
 
-        .seo-grade {
-            flex: 1;
-            text-align: center;
-        }
+        .seo-grade { text-align: center; min-width: 100px; }
 
         .seo-grade span {
-            font-size: 4rem;
+            font-size: 3.25rem;
             font-weight: 700;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .seo-score-divider {
+            width: 1px;
+            height: 64px;
+            background: var(--border);
+            flex-shrink: 0;
         }
 
         .seo-score-display {
-            flex: 1;
             text-align: center;
+            min-width: 120px;
         }
 
         .score-circle {
             display: inline-flex;
             align-items: baseline;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 50px;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
-            margin-bottom: 8px;
+            background: rgba(109, 93, 252, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(109, 93, 252, 0.3);
+            padding: 10px 20px;
+            border-radius: 40px;
+            margin-bottom: 4px;
         }
 
         .score-number {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             margin-right: 2px;
         }
 
         .score-max {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: 500;
-            opacity: 0.9;
+            opacity: 0.8;
         }
 
         .score-label {
-            font-size: 0.9rem;
-            color: var(--text-color);
-            opacity: 0.8;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
             font-weight: 500;
         }
 
         .seo-feedback {
             text-align: center;
-            font-size: 1.2rem;
-            color: var(--text-color);
-            margin-bottom: 25px;
-            line-height: 1.6;
-            padding: 20px;
-            background: rgba(102, 126, 234, 0.03);
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .seo-aspects {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .aspect-group {
-            background: rgba(102, 126, 234, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            border-left: 3px solid #667eea;
-        }
-
-        .aspect-group h5 {
-            color: var(--text-color);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .aspect-group ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .aspect-group li {
-            color: var(--text-color);
-            opacity: 0.8;
-            font-size: 0.9rem;
-            padding: 3px 0;
-            position: relative;
-            padding-left: 15px;
-        }
-
-        .aspect-group li:before {
-            content: "✓";
-            color: #4CAF50;
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-        }
-
-        .security-headers {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(76, 175, 80, 0.05);
-            border-radius: 12px;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .security-headers.security-warning {
-            background: rgba(255, 152, 0, 0.05);
-            border-left-color: #FF9800;
-        }
-
-        .security-headers h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-color);
+            font-size: 0.9375rem;
             margin-bottom: 20px;
+            line-height: 1.5;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            color: var(--text);
         }
 
-        .headers-grid {
-            display: grid;
-            gap: 12px;
+        .seo-subsection {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
         }
 
-        .header-item {
+        .seo-subsection-head {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: flex-start;
-            padding: 15px;
-            background: var(--card-bg);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
+            gap: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
         }
 
-        .header-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-info {
-            flex: 1;
-            margin-right: 15px;
-        }
-
-        .header-name {
+        .seo-subsection-head h4 {
+            font-size: 0.9375rem;
             font-weight: 600;
-            color: var(--text-color);
-            font-size: 0.95rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .header-description {
-            color: var(--text-color);
-            opacity: 0.7;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-
-        .header-status {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+            align-items: center;
             gap: 8px;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-badge.status-good {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
-        }
-
-        .header-value {
-            color: var(--text-color);
-            opacity: 0.8;
-            font-size: 0.8rem;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-align: right;
-        }
-
-        .security-summary {
-            margin-top: 15px;
-            padding: 12px;
-            background: rgba(76, 175, 80, 0.1);
-            border-radius: 8px;
-            border-left: 3px solid #4CAF50;
-        }
-
-        .security-summary p {
             margin: 0;
-            color: var(--text-color);
-            font-size: 0.9rem;
-            line-height: 1.4;
         }
 
-        /* Navigation */
+        .seo-subsection-head h4 i { color: var(--success); }
+
+        .seo-subsection-head.warn h4 i { color: var(--warning); }
+
+        /* Navigation & Buttons */
         .navigation {
             text-align: center;
             display: flex;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 16px;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-    text-decoration: none;
-            padding: 15px 30px;
-            border-radius: 12px;
+            gap: 8px;
+            background: var(--primary);
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            font-size: 0.95rem;
+            transition: background 0.2s;
             border: none;
             cursor: pointer;
-}
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            font-family: inherit;
         }
 
-        .btn:active {
-            transform: translateY(0);
+        .btn:hover {
+            background: var(--primary-hover);
+            text-decoration: none;
         }
 
         .btn-secondary {
-            background: linear-gradient(45deg, #6c757d, #495057);
-            box-shadow: 0 10px 25px rgba(108, 117, 125, 0.3);
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            box-shadow: 0 15px 35px rgba(108, 117, 125, 0.4);
+            background: var(--card-elevated);
+            border-color: rgba(255,255,255,0.15);
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+            background: var(--primary);
+            color: #fff;
         }
 
-        .btn-primary:hover {
-            box-shadow: 0 15px 35px rgba(0, 123, 255, 0.4);
-        }
+        .btn-primary:hover { background: var(--primary-hover); }
 
-        /* Status Indicators */
-        .status-good {
-            color: #4CAF50;
-        }
-
-        .status-warning {
-            color: #FF9800;
-        }
-
-        .status-error {
-            color: #f44336;
-        }
-
-        /* Responsive Design */
+        /* Responsive */
         @media (max-width: 768px) {
-            .results-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .chart-container {
-                height: 350px;
-                padding: 15px;
-            }
-
-            .chart-container canvas {
-                max-height: 300px;
-            }
-
-            .logo {
-                font-size: 2rem;
-            }
-
-            .result-card {
-                padding: 25px 20px;
-            }
-
-            .card-value {
-                font-size: 1.5rem;
-            }
-
-            .navigation {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 250px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .chart-container {
-                height: 300px;
-                padding: 10px;
-            }
-
-            .chart-container canvas {
-                max-height: 250px;
-            }
-
-            .chart-title {
-                font-size: 1rem;
-                margin-bottom: 10px;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-card {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .result-card:nth-child(1) { animation-delay: 0.1s; }
-        .result-card:nth-child(2) { animation-delay: 0.2s; }
-        .result-card:nth-child(3) { animation-delay: 0.3s; }
-        .result-card:nth-child(4) { animation-delay: 0.4s; }
-        .result-card:nth-child(5) { animation-delay: 0.5s; }
-        .result-card:nth-child(6) { animation-delay: 0.6s; }
-
-
-
-        .ping-results {
-            animation: fadeInUp 0.6s ease 0.8s forwards;
-            opacity: 0;
-        }
-
-        .seo-results {
-            animation: fadeInUp 0.6s ease 0.9s forwards;
-            opacity: 0;
+            .results-grid { grid-template-columns: 1fr; }
+            .result-card { padding: 20px; }
+            .card-value { font-size: 1.5rem; }
+            .seo-main-info { flex-direction: column; gap: 16px; }
+            .seo-score-divider { width: 64px; height: 1px; }
+            .headers-grid { grid-template-columns: 1fr; }
+            .navigation { flex-direction: column; align-items: stretch; }
+            .btn { justify-content: center; }
         }
     </style>
 </head>
 <body>
-
-
-<div class="container">
-        <div class="header">
-            <h1 class="logo">
-                <i class="fas fa-bolt"></i>
+<div class="wrap">
+        <nav class="nav">
+            <a href="{{ url_for('index') }}" class="brand">
+                <span class="brand-mark">SB</span>
                 Sonic Boom
-            </h1>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('history') }}">История</a>
+            </div>
+        </nav>
+
+        <div class="page-header">
+            <p class="section-label">Отчёт</p>
+            <h1>Результат анализа</h1>
             <div class="analyzed-url">
                 <i class="fas fa-globe"></i>
                 {{ url }}
             </div>
         </div>
+
+        {% if comparison %}
+        <div class="comparison-banner">
+            <h3><i class="fas fa-chart-line"></i> Изменения с прошлой проверкой</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="label">SEO балл</div>
+                    <div class="values">
+                        {{ comparison.previous_seo_score }} → {{ seo_score_value }}
+                        {% if comparison.seo_delta > 0 %}
+                            <span class="delta-down">▲ +{{ comparison.seo_delta }}</span>
+                        {% elif comparison.seo_delta < 0 %}
+                            <span class="delta-up">▼ {{ comparison.seo_delta }}</span>
+                        {% else %}
+                            <span class="delta-neutral">— без изменений</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <div class="label">Время загрузки</div>
+                    <div class="values">
+                        {{ (comparison.previous_load_time * 1000)|round|int }} ms → {{ (load_time * 1000)|round|int }} ms
+                        {% if comparison.load_time_delta_pct is not none %}
+                            {% if comparison.load_time_delta_pct > 0 %}
+                                <span class="delta-up">▲ +{{ comparison.load_time_delta_pct }}%</span>
+                            {% elif comparison.load_time_delta_pct < 0 %}
+                                <span class="delta-down">▼ {{ comparison.load_time_delta_pct }}%</span>
+                            {% else %}
+                                <span class="delta-neutral">— без изменений</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% if comparison.ssl_days_delta is not none %}
+                <div class="comparison-item">
+                    <div class="label">SSL expires</div>
+                    <div class="values">
+                        {{ comparison.previous_ssl_days }} → {{ comparison.ssl_days }} days
+                        {% if comparison.ssl_days_delta < 0 %}
+                            <span class="delta-up">▼ {{ comparison.ssl_days_delta }} days</span>
+                        {% elif comparison.ssl_days_delta > 0 %}
+                            <span class="delta-down">▲ +{{ comparison.ssl_days_delta }} days</span>
+                        {% else %}
+                            <span class="delta-neutral">— без изменений</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% if comparison.security_delta is not none %}
+                <div class="comparison-item">
+                    <div class="label">Security score</div>
+                    <div class="values">
+                        {{ comparison.previous_security_score }}/{{ comparison.security_score_max }} → {{ comparison.security_score }}/{{ comparison.security_score_max }}
+                        {% if comparison.security_delta < 0 %}
+                            <span class="delta-up">▼ {{ comparison.security_delta }}</span>
+                        {% elif comparison.security_delta > 0 %}
+                            <span class="delta-down">▲ +{{ comparison.security_delta }}</span>
+                        {% else %}
+                            <span class="delta-neutral">— без изменений</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
 
         <div class="results-grid">
             <div class="result-card load-time">
@@ -845,20 +1008,29 @@
             <div class="result-card ssl-info">
                 <div class="card-header">
                     <div class="card-icon">
-                        <i class="fas fa-shield-alt"></i>
+                        <i class="fas fa-lock"></i>
                     </div>
                     <h3 class="card-title">SSL сертификат</h3>
                 </div>
                 <div class="card-value">
-                    {% if "error" not in ssl_info|lower and "exception" not in ssl_info|lower %}
-                        <span class="status-good">Действителен</span>
+                    {% if ssl_info.valid %}
+                        {% if ssl_info.status == 'ok' %}
+                            <span class="status-good">{{ ssl_info.days_remaining }} дн.</span>
+                        {% elif ssl_info.status == 'warning' %}
+                            <span class="status-warning">{{ ssl_info.days_remaining }} дн.</span>
+                        {% elif ssl_info.status == 'critical' or ssl_info.status == 'expired' %}
+                            <span class="status-error">{{ ssl_info.days_remaining }} дн.</span>
+                        {% else %}
+                            <span class="status-good">Действителен</span>
+                        {% endif %}
                     {% else %}
                         <span class="status-error">Ошибка</span>
                     {% endif %}
                 </div>
                 <p class="card-description">
-                    {% if "error" not in ssl_info|lower and "exception" not in ssl_info|lower %}
-                        SSL-сертификат активен и безопасен 🔒
+                    {% if ssl_info.valid %}
+                        {{ ssl_info.issuer }}<br>
+                        <small>До {{ ssl_info.expires }}</small>
                     {% else %}
                         Проблемы с SSL-сертификатом ⚠️
                     {% endif %}
@@ -915,14 +1087,351 @@
                     <h3 class="card-title">Размер страницы</h3>
                 </div>
                 <div class="card-value">
-                    <span class="status-good">{{ (load_time * 1000)|round|int }} KB</span>
+                    {% if page_size_info.status == 'ok' %}
+                        <span class="status-good">{{ page_size_info.display }}</span>
+                    {% elif page_size_info.status == 'warning' %}
+                        <span class="status-warning">{{ page_size_info.display }}</span>
+                    {% else %}
+                        <span class="status-error">{{ page_size_info.display }}</span>
+                    {% endif %}
                 </div>
                 <p class="card-description">
-                    Примерный размер загруженного контента 📊
+                    {{ page_size_info.recommendation }}<br>
+                    <small>Размер ответа (response.content)</small>
                 </p>
             </div>
 
 
+        </div>
+
+        <div class="audit-section">
+            <div class="audit-section-header">
+                <h2><i class="fas fa-clipboard-check"></i> SEO и технический аудит</h2>
+                <p>Детальный анализ HTTP, мета-тегов, индексации и контента</p>
+            </div>
+
+            <div class="audit-grid">
+                <!-- HTTP & Redirects -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-exchange-alt"></i>
+                        <h3>HTTP и редиректы</h3>
+                    </div>
+                    {% if redirect_info.error %}
+                    <div class="audit-row">
+                        <span class="audit-label">Ошибка</span>
+                        <span class="audit-value"><span class="status-badge badge-error">{{ redirect_info.error }}</span></span>
+                    </div>
+                    {% else %}
+                    <div class="audit-row">
+                        <span class="audit-label">HTTP Status</span>
+                        <span class="audit-value">
+                            {% if redirect_info.status_code and redirect_info.status_code < 400 %}
+                                <span class="status-badge badge-ok">{{ redirect_info.status_code }} {{ redirect_info.status_text }}</span>
+                            {% else %}
+                                <span class="status-badge badge-error">{{ redirect_info.status_code }} {{ redirect_info.status_text }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Редиректов</span>
+                        <span class="audit-value">{{ redirect_info.redirect_count }}</span>
+                    </div>
+                    {% if redirect_info.http_to_https %}
+                    <div class="audit-row">
+                        <span class="audit-label">HTTPS</span>
+                        <span class="audit-value"><span class="status-badge badge-ok">HTTP → HTTPS ✓</span></span>
+                    </div>
+                    {% endif %}
+                    {% if redirect_info.has_cycle %}
+                    <div class="audit-row">
+                        <span class="audit-label">Цикл</span>
+                        <span class="audit-value"><span class="status-badge badge-error">Обнаружен</span></span>
+                    </div>
+                    {% endif %}
+                    {% if redirect_info.chain_too_long %}
+                    <div class="audit-row">
+                        <span class="audit-label">Цепочка</span>
+                        <span class="audit-value"><span class="status-badge badge-warning">Слишком длинная</span></span>
+                    </div>
+                    {% endif %}
+                    {% if redirect_info.redirect_count > 0 %}
+                    <div class="audit-chain">
+                        <strong>Redirect Chain:</strong>
+                        <ol>
+                            <li>{{ redirect_info.chain[0] }}</li>
+                            {% for step in redirect_info.redirect_steps %}
+                            <li><span class="status-badge badge-info">{{ step.code }}</span> → {{ step.to }}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    {% endif %}
+                    {% if fetch_url != url %}
+                    <div class="audit-row" style="margin-top:10px">
+                        <span class="audit-label">Финальный URL</span>
+                        <span class="audit-value" style="font-size:0.8rem">{{ fetch_url }}</span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- SSL Details -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-lock"></i>
+                        <h3>SSL сертификат</h3>
+                    </div>
+                    {% if ssl_info.valid %}
+                    <div class="audit-row">
+                        <span class="audit-label">Издатель</span>
+                        <span class="audit-value">{{ ssl_info.issuer }}</span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Subject (CN)</span>
+                        <span class="audit-value">{{ ssl_info.subject }}</span>
+                    </div>
+                    {% if ssl_info.san %}
+                    <div class="audit-row">
+                        <span class="audit-label">SAN</span>
+                        <span class="audit-value" style="font-size:0.82rem">{{ ssl_info.san|join(', ') }}{% if ssl_info.san|length >= 10 %}…{% endif %}</span>
+                    </div>
+                    {% endif %}
+                    {% if ssl_info.issued %}
+                    <div class="audit-row">
+                        <span class="audit-label">Выпущен</span>
+                        <span class="audit-value">{{ ssl_info.issued }}</span>
+                    </div>
+                    {% endif %}
+                    {% if ssl_info.expires %}
+                    <div class="audit-row">
+                        <span class="audit-label">Истекает</span>
+                        <span class="audit-value">{{ ssl_info.expires }}</span>
+                    </div>
+                    {% endif %}
+                    {% if ssl_info.days_remaining is not none %}
+                    <div class="audit-row">
+                        <span class="audit-label">Осталось</span>
+                        <span class="audit-value">
+                            {% if ssl_info.status == 'ok' or ssl_info.status == 'unknown_dates' %}
+                                <span class="status-badge badge-ok">{{ ssl_info.days_remaining }} дней</span>
+                            {% elif ssl_info.status == 'warning' %}
+                                <span class="status-badge badge-warning">{{ ssl_info.days_remaining }} дней</span>
+                            {% else %}
+                                <span class="status-badge badge-error">{{ ssl_info.days_remaining }} дней</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="audit-row">
+                        <span class="audit-label">Статус</span>
+                        <span class="audit-value"><span class="status-badge badge-error">Недействителен</span></span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Meta SEO -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-tags"></i>
+                        <h3>Meta SEO</h3>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Title</span>
+                        <span class="audit-value">
+                            {% if meta_seo.title.status == 'ok' %}
+                                <span class="status-badge badge-ok">{{ meta_seo.title.hint }} ({{ meta_seo.title.length }})</span>
+                            {% elif meta_seo.title.status == 'warning' %}
+                                <span class="status-badge badge-warning">{{ meta_seo.title.hint }} ({{ meta_seo.title.length }})</span>
+                            {% else %}
+                                <span class="status-badge badge-error">Missing</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if meta_seo.title.text %}
+                    <div class="audit-row">
+                        <span class="audit-label"></span>
+                        <span class="audit-value" style="font-size:0.82rem;opacity:0.8">{{ meta_seo.title.text[:80] }}{% if meta_seo.title.text|length > 80 %}…{% endif %}</span>
+                    </div>
+                    {% endif %}
+                    <div class="audit-row">
+                        <span class="audit-label">Description</span>
+                        <span class="audit-value">
+                            {% if meta_seo.description.status == 'ok' %}
+                                <span class="status-badge badge-ok">{{ meta_seo.description.hint }} ({{ meta_seo.description.length }})</span>
+                            {% elif meta_seo.description.status == 'warning' %}
+                                <span class="status-badge badge-warning">{{ meta_seo.description.hint }} ({{ meta_seo.description.length }})</span>
+                            {% else %}
+                                <span class="status-badge badge-error">Missing</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Canonical</span>
+                        <span class="audit-value">
+                            {% if meta_seo.canonical.present %}
+                                <span class="status-badge badge-ok">Present</span>
+                            {% else %}
+                                <span class="status-badge badge-warning">Missing</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Robots meta</span>
+                        <span class="audit-value">
+                            {% if meta_seo.robots_meta.present %}
+                                <span class="status-badge badge-info">{{ meta_seo.robots_meta.content }}</span>
+                            {% else %}
+                                <span class="status-badge badge-info">Not set</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Open Graph</span>
+                        <span class="audit-value">
+                            {% if meta_seo.og.status == 'ok' %}
+                                <span class="status-badge badge-ok">{{ meta_seo.og.score }}</span>
+                            {% elif meta_seo.og.status == 'partial' %}
+                                <span class="status-badge badge-warning">{{ meta_seo.og.score }}</span>
+                            {% else %}
+                                <span class="status-badge badge-error">0/4</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label"></span>
+                        <span class="audit-value" style="font-size:0.8rem;opacity:0.75">og:title, og:description, og:image, og:url</span>
+                    </div>
+                </div>
+
+                <!-- Robots & Sitemap -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-sitemap"></i>
+                        <h3>Индексация</h3>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">robots.txt</span>
+                        <span class="audit-value">
+                            {% if robots_sitemap.robots.present and robots_sitemap.robots.blocks_indexing %}
+                                <span class="status-badge badge-error">⚠ Blocks indexing</span>
+                            {% elif robots_sitemap.robots.present %}
+                                <span class="status-badge badge-ok">✓ Valid</span>
+                            {% else %}
+                                <span class="status-badge badge-error">Missing</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label"></span>
+                        <span class="audit-value" style="font-size:0.8rem;opacity:0.7">{{ robots_sitemap.robots.url }}</span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Sitemap</span>
+                        <span class="audit-value">
+                            {% if robots_sitemap.sitemap.present %}
+                                <span class="status-badge badge-ok">✓ Found</span>
+                            {% else %}
+                                <span class="status-badge badge-error">Missing</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label"></span>
+                        <span class="audit-value" style="font-size:0.8rem;opacity:0.7">
+                            {% if robots_sitemap.sitemap.found_url %}
+                                {{ robots_sitemap.sitemap.found_url }}
+                            {% else %}
+                                {{ robots_sitemap.sitemap.urls_checked|join(', ') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Headings -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-heading"></i>
+                        <h3>Заголовки</h3>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">H1</span>
+                        <span class="audit-value">
+                            {% if headings_info.status == 'ok' %}
+                                <span class="status-badge badge-ok">{{ headings_info.h1_count }}</span>
+                            {% elif headings_info.status == 'missing' %}
+                                <span class="status-badge badge-error">0 (missing)</span>
+                            {% else %}
+                                <span class="status-badge badge-warning">{{ headings_info.h1_count }} (warning)</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">H2</span>
+                        <span class="audit-value">{{ headings_info.h2_count }}</span>
+                    </div>
+                    {% if headings_info.h1_texts %}
+                    <div class="audit-chain">
+                        <strong>H1 тексты:</strong>
+                        <ol>
+                            {% for h1 in headings_info.h1_texts %}
+                            <li>{{ h1[:100] }}{% if h1|length > 100 %}…{% endif %}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Images -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-image"></i>
+                        <h3>Изображения</h3>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Всего</span>
+                        <span class="audit-value">{{ images_info.total }}</span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Без ALT</span>
+                        <span class="audit-value">
+                            {% if images_info.missing_alt == 0 %}
+                                <span class="status-badge badge-ok">0</span>
+                            {% elif images_info.missing_alt <= 5 %}
+                                <span class="status-badge badge-warning">{{ images_info.missing_alt }}</span>
+                            {% else %}
+                                <span class="status-badge badge-error">{{ images_info.missing_alt }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">С ALT</span>
+                        <span class="audit-value">{{ images_info.with_alt }}</span>
+                    </div>
+                </div>
+
+                <!-- Compression -->
+                <div class="audit-card">
+                    <div class="audit-card-header">
+                        <i class="fas fa-compress-alt"></i>
+                        <h3>Сжатие</h3>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Content-Encoding</span>
+                        <span class="audit-value">{{ compression_info.encoding }}</span>
+                    </div>
+                    <div class="audit-row">
+                        <span class="audit-label">Статус</span>
+                        <span class="audit-value">
+                            {% if compression_info.enabled %}
+                                <span class="status-badge badge-ok">{{ compression_info.display }} ✓</span>
+                            {% else %}
+                                <span class="status-badge badge-warning">Not Enabled</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
 
 
@@ -959,6 +1468,7 @@
                             <span class="status-error">{{ seo_grade }}</span>
                         {% endif %}
                     </div>
+                    <div class="seo-score-divider"></div>
                     <div class="seo-score-display">
                         <div class="score-circle">
                             <span class="score-number">{{ seo_score_value }}</span>
@@ -967,122 +1477,96 @@
                         <div class="score-label">Общий балл</div>
                     </div>
                 </div>
-                <div class="seo-feedback">
-                    {{ seo_feedback }}
-                </div>
-                                        {% if http_headers and http_headers is mapping and http_headers.error is not defined %}
-                        <div class="security-headers">
-                            <h4>🔒 Настройки безопасности сайта:</h4>
-                            <div class="headers-grid">
-                                {% for header, value in http_headers.items() %}
-                                <div class="header-item">
-                                    <div class="header-info">
-                                        <span class="header-name">{{ header }}</span>
-                                        <span class="header-description">
-                                            {% if header == 'HSTS' %}
-                                                Принудительное использование HTTPS
-                                            {% elif header == 'X-Content-Type-Options' %}
-                                                Защита от MIME-спуфинга
-                                            {% elif header == 'X-Frame-Options' %}
-                                                Защита от кликджекинга
-                                            {% elif header == 'X-XSS-Protection' %}
-                                                Защита от XSS атак
-                                            {% elif header == 'CSP' %}
-                                                Политика безопасности контента
-                                            {% elif header == 'Referrer-Policy' %}
-                                                Контроль передачи referrer
-                                            {% else %}
-                                                Дополнительная защита
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                    <div class="header-status">
-                                        <span class="status-badge status-good">✅ Активна</span>
-                                        <span class="header-value">{{ value }}</span>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <div class="security-summary">
-                                <p>🎯 <strong>Найдено {{ http_headers|length }} настроек безопасности</strong> - сайт защищен от основных типов атак</p>
-                            </div>
-                        </div>
-                        {% else %}
-                        <div class="security-headers security-warning">
-                            <h4>⚠️ Настройки безопасности:</h4>
-                            <div class="security-summary">
-                                <p>🔍 <strong>Не удалось проверить настройки безопасности</strong> - рекомендуется проверить вручную</p>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if seo_details %}
-                        <div class="seo-details">
-                            <div class="details-header">
-                                <h4>📋 Результаты анализа</h4>
-                                <div class="details-summary">
-                                    <span class="summary-badge">
-                                        <i class="fas fa-chart-line"></i>
-                                        {{ seo_details|length }} проверок выполнено
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <div class="analysis-results">
-                                {% for detail in seo_details %}
-                                <div class="result-item">
-                                    <div class="result-icon">
-                                        {% if "🚀" in detail or "⚡" in detail or "✅" in detail or "🎯" in detail or "🏆" in detail %}
-                                            <i class="fas fa-check-circle"></i>
-                                        {% elif "⚠️" in detail %}
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                        {% elif "❌" in detail %}
-                                            <i class="fas fa-times-circle"></i>
-                                        {% else %}
-                                            <i class="fas fa-info-circle"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div class="result-text">{{ detail }}</div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            
-                            <div class="aspects-overview">
-                                <h4>🔍 Анализируемые аспекты</h4>
-                                <div class="seo-aspects">
-                                    <div class="aspect-group">
-                                        <h5>🚀 Технические аспекты</h5>
-                                        <ul>
-                                            <li>Скорость загрузки страниц</li>
-                                            <li>Мобильная оптимизация</li>
-                                            <li>DNS резолвинг</li>
-                                            <li>SSL сертификат</li>
-                                            <li>Структура URL</li>
-                                            <li>Безопасность</li>
-                                        </ul>
-                                    </div>
-                                    <div class="aspect-group">
-                                        <h5>📊 Сетевая производительность</h5>
-                                        <ul>
-                                            <li>Сетевая задержка (ping)</li>
-                                            <li>Время отклика сервера</li>
-                                            <li>Стабильность соединения</li>
-                                        </ul>
-                                    </div>
-                                    <div class="aspect-group">
-                                        <h5>🔒 Безопасность</h5>
-                                        <ul>
-                                            <li>Настройки безопасности сайта</li>
-                                            <li>SSL сертификат</li>
-                                            <li>Защита от атак</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
+                <div class="seo-feedback">{{ seo_feedback }}</div>
 
+                {% if security_headers_report %}
+                <div class="seo-subsection security-headers{% if security_headers_report.missing_count %} has-missing{% endif %}">
+                    <div class="seo-subsection-head">
+                        <h4><i class="fas fa-shield-alt"></i> Настройки безопасности</h4>
+                        <span class="summary-badge">{{ security_headers_report.present_count }}/{{ security_headers_report.total }} заголовков</span>
+                    </div>
+
+                    {% if security_headers_report.present %}
+                    <p class="headers-section-title">Настроено — защищает от</p>
+                    <div class="headers-grid">
+                        {% for item in security_headers_report.present %}
+                        <div class="header-item">
+                            <div class="header-row-top">
+                                <span class="header-name">{{ item.key }}</span>
+                                <span class="header-badge ok">Активна</span>
+                            </div>
+                            <p class="header-protects"><strong>Защита:</strong> {{ item.protects }}</p>
+                            {% if item.value|length > 72 %}
+                            <details class="header-value-details">
+                                <summary>Значение ({{ item.value|length }} симв.)</summary>
+                                <code class="header-value-code">{{ item.value }}</code>
+                            </details>
+                            {% else %}
+                            <code class="header-value-short">{{ item.value }}</code>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if security_headers_report.missing %}
+                    <p class="headers-section-title missing-title">Можно добавить</p>
+                    <div class="headers-grid">
+                        {% for item in security_headers_report.missing %}
+                        <div class="header-item is-missing">
+                            <div class="header-row-top">
+                                <span class="header-name">{{ item.key }}</span>
+                                <span class="header-badge missing">Отсутствует</span>
+                            </div>
+                            <p class="header-protects"><strong>Защитит от:</strong> {{ item.protects }}</p>
+                            <p class="header-recommend"><strong>Рекомендация:</strong> {{ item.recommend }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="security-summary">
+                        {% if security_headers_report.missing_count == 0 %}
+                        <strong>Все {{ security_headers_report.total }} заголовков настроены</strong> — базовая защита заголовков в порядке
+                        {% else %}
+                        <strong>{{ security_headers_report.present_count }} из {{ security_headers_report.total }} настроено</strong>
+                        — добавьте {{ security_headers_report.missing_count }}
+                        {% if security_headers_report.missing_count == 1 %}заголовок{% elif security_headers_report.missing_count < 5 %}заголовка{% else %}заголовков{% endif %}
+                        для усиления безопасности
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="seo-subsection security-headers security-warning">
+                    <div class="seo-subsection-head warn">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Настройки безопасности</h4>
+                    </div>
+                    <div class="security-summary">
+                        <strong>Не удалось проверить заголовки</strong> — рекомендуется проверить вручную
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if seo_details %}
+                <div class="seo-subsection seo-details">
+                    <div class="details-header">
+                        <h4><i class="fas fa-list-check"></i> Результаты анализа</h4>
+                        <span class="summary-badge">
+                            <i class="fas fa-chart-line"></i>
+                            {{ seo_details|length }} проверок
+                        </span>
+                    </div>
+                    <div class="analysis-results">
+                        {% for detail in seo_details %}
+                        {% set status = detail|detail_status %}
+                        <div class="result-item is-{{ status }}">
+                            <span class="result-status">{{ detail|detail_status_label }}</span>
+                            <span class="result-text">{{ detail|clean_detail }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -1091,21 +1575,13 @@
                 <i class="fas fa-arrow-left"></i>
                 Новый анализ
             </a>
+            <a href="{{ url_for('history') }}" class="btn btn-secondary">
+                <i class="fas fa-history"></i>
+                История
+            </a>
         </div>
-</div>
 
-    <script>
-        // Page load animation
-        document.addEventListener('DOMContentLoaded', function() {
-            document.body.style.opacity = '0';
-            document.body.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                document.body.style.transition = 'all 0.6s ease';
-                document.body.style.opacity = '1';
-                document.body.style.transform = 'translateY(0)';
-            }, 100);
-        });
-    </script>
+        {% include 'partials/footer.html' %}
+</div>
 </body>
 </html>

@@ -1,0 +1,165 @@
+<div class="report-preview">
+    <div class="analyzed-url">
+        <i class="fas fa-globe"></i>
+        {{ sample.url }}
+    </div>
+
+    <div class="results-grid">
+        <div class="result-card load-time">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <h3 class="card-title">Время загрузки</h3>
+            </div>
+            <div class="card-value">
+                {% if sample.load_time < 1 %}
+                    <span class="status-good">{{ "%.3f"|format(sample.load_time) }}s</span>
+                {% elif sample.load_time < 3 %}
+                    <span class="status-warning">{{ "%.3f"|format(sample.load_time) }}s</span>
+                {% else %}
+                    <span class="status-error">{{ "%.3f"|format(sample.load_time) }}s</span>
+                {% endif %}
+            </div>
+            <p class="card-description">
+                {% if sample.load_time < 1 %}
+                    Отличная скорость загрузки! 🚀
+                {% elif sample.load_time < 3 %}
+                    Приемлемая скорость загрузки ⚡
+                {% else %}
+                    Медленная загрузка, рекомендуется оптимизация 🐌
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="result-card dns-info">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-network-wired"></i></div>
+                <h3 class="card-title">DNS информация</h3>
+            </div>
+            <div class="card-value"><span class="status-good">{{ sample.dns_info }}</span></div>
+            <p class="card-description">IP-адрес успешно получен ✅</p>
+        </div>
+
+        <div class="result-card ssl-info">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-lock"></i></div>
+                <h3 class="card-title">SSL сертификат</h3>
+            </div>
+            <div class="card-value"><span class="status-good">{{ sample.ssl_info.days_remaining }} дн.</span></div>
+            <p class="card-description">
+                {{ sample.ssl_info.issuer }}<br>
+                <small>До {{ sample.ssl_info.expires }}</small>
+            </p>
+        </div>
+
+        <div class="result-card ping-info">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-signal"></i></div>
+                <h3 class="card-title">Сетевая задержка</h3>
+            </div>
+            <div class="card-value"><span class="status-good">{{ sample.avg_ping }}ms</span></div>
+            <p class="card-description">
+                Отличная сетевая задержка! 🎯
+                <br><small>{% if sample.ping_via_http %}Измерено через HTTP-запросы{% else %}Измерено через ping{% endif %}</small>
+            </p>
+        </div>
+
+        <div class="result-card size-info">
+            <div class="card-header">
+                <div class="card-icon"><i class="fas fa-weight-hanging"></i></div>
+                <h3 class="card-title">Размер страницы</h3>
+            </div>
+            <div class="card-value">
+                {% if sample.page_size_info.status == 'ok' %}
+                    <span class="status-good">{{ sample.page_size_info.display }}</span>
+                {% elif sample.page_size_info.status == 'warning' %}
+                    <span class="status-warning">{{ sample.page_size_info.display }}</span>
+                {% else %}
+                    <span class="status-error">{{ sample.page_size_info.display }}</span>
+                {% endif %}
+            </div>
+            <p class="card-description">
+                {{ sample.page_size_info.recommendation }}<br>
+                <small>Размер ответа (response.content)</small>
+            </p>
+        </div>
+    </div>
+
+    <div class="audit-section">
+        <div class="audit-section-header">
+            <h3><i class="fas fa-clipboard-check"></i> SEO и технический аудит</h3>
+            <p>Детальный анализ HTTP, мета-тегов, индексации и контента</p>
+        </div>
+        <div class="audit-grid">
+            <div class="audit-card">
+                <div class="audit-card-header">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h4>HTTP и редиректы</h4>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">HTTP Status</span>
+                    <span class="audit-value">
+                        <span class="status-badge badge-ok">{{ sample.redirect_info.status_code }} {{ sample.redirect_info.status_text }}</span>
+                    </span>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">Редиректов</span>
+                    <span class="audit-value">{{ sample.redirect_info.redirect_count }}</span>
+                </div>
+                {% if sample.redirect_info.http_to_https %}
+                <div class="audit-row">
+                    <span class="audit-label">HTTPS</span>
+                    <span class="audit-value"><span class="status-badge badge-ok">HTTP → HTTPS ✓</span></span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="audit-card">
+                <div class="audit-card-header">
+                    <i class="fas fa-tags"></i>
+                    <h4>Meta SEO</h4>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">Title</span>
+                    <span class="audit-value">
+                        <span class="status-badge badge-ok">{{ sample.meta_seo.title.hint }} ({{ sample.meta_seo.title.length }})</span>
+                    </span>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">H1</span>
+                    <span class="audit-value">
+                        <span class="status-badge badge-ok">{{ sample.headings_info.h1_count }}</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="audit-card">
+                <div class="audit-card-header">
+                    <i class="fas fa-robot"></i>
+                    <h4>Robots & Sitemap</h4>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">robots.txt</span>
+                    <span class="audit-value"><span class="status-badge badge-ok">✓ Valid</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="seo-results">
+        <div class="seo-header">
+            <div class="seo-icon"><i class="fas fa-search"></i></div>
+            <h3 class="seo-title">SEO оценка</h3>
+        </div>
+        <div class="seo-main-info">
+            <div class="seo-grade status-warning">{{ sample.seo_grade }}</div>
+            <div class="seo-score-display">
+                <div class="score-circle">
+                    <span class="score-number">{{ sample.seo_score_value }}</span>
+                    <span class="score-max">/100</span>
+                </div>
+                <div class="score-label">Общий балл</div>
+            </div>
+        </div>
+        <div class="seo-feedback">{{ sample.seo_feedback }}</div>
+    </div>
+</div>

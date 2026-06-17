@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API — Sonic Boom</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <style>
+        :root {
+            --bg: #0B1020;
+            --card: #131A2E;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #E8ECF4;
+            --text-muted: #8B95A8;
+            --primary: #6D5DFC;
+            --accent: #00D4FF;
+            --success: #00C853;
+            --warning: #FFB300;
+            --error: #FF5252;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 80px; }
+
+        .page-header { margin-bottom: 48px; margin-top: 32px; }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .page-header p { color: var(--text-muted); font-size: 1rem; }
+
+        .version-pill {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 6px 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section { margin-bottom: 40px; }
+
+        .section h2 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .endpoint {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .endpoint-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .method {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        .method-get { background: rgba(0, 212, 255, 0.15); color: var(--accent); }
+        .method-post { background: rgba(0, 200, 83, 0.15); color: var(--success); }
+        .method-delete { background: rgba(255, 82, 82, 0.15); color: var(--error); }
+
+        .path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .endpoint-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .endpoint-meta {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .endpoint-meta strong { color: var(--text); font-weight: 500; }
+
+        pre {
+            background: #0a0e1a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #b8c0d0;
+        }
+
+        .note {
+            background: rgba(109, 93, 252, 0.08);
+            border: 1px solid rgba(109, 93, 252, 0.2);
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .note strong { color: var(--text); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <nav class="nav">
+            <a href="{{ url_for('index') }}" class="brand">
+                <span class="brand-mark">SB</span>
+                Sonic Boom
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Главная</a>
+                <a href="{{ url_for('history') }}">История</a>
+            </div>
+        </nav>
+
+        <header class="page-header">
+            <h1>Documentation</h1>
+            <p>Полное описание REST API: параметры, примеры запросов и admin-доступ.</p>
+            <span class="version-pill">{{ app_version }}</span>
+        </header>
+
+        <p style="margin-bottom: 32px; font-size: 0.9rem;">
+            <a href="{{ url_for('api_overview') }}">← API overview</a> — статус сервиса и быстрые ссылки
+        </p>
+
+        <div class="note">
+            <strong>Анализ сайта</strong> выполняется через веб-форму <code>POST /</code> с полем <code>url</code>.
+            Free-план: {{ free_daily_limit }} анализов в сутки на IP.
+            Полные метрики <code>/api/stats</code> — только localhost или заголовок <code>X-Admin-Token</code>.
+        </div>
+
+        <div class="section">
+            <h2>Системные</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/health</span>
+                </div>
+                <p class="endpoint-desc">Health-check для reverse proxy и мониторинга.</p>
+                <pre>{"status": "ok"}</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/version</span>
+                </div>
+                <p class="endpoint-desc">Текущая версия приложения.</p>
+                <pre>{"version": "{{ app_version }}"}</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>История и аналитика</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/history?limit=10</span>
+                </div>
+                <p class="endpoint-desc">Список последних анализов с дельтами изменений.</p>
+                <p class="endpoint-meta"><strong>Параметры:</strong> limit (int, default 10)</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/history/filter</span>
+                </div>
+                <p class="endpoint-desc">Фильтрация истории по дате, SEO, домену, избранному.</p>
+                <p class="endpoint-meta"><strong>Параметры:</strong> date_from, date_to, seo_score, load_time_min, load_time_max, domain, favorites_only, tags</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/stats</span>
+                </div>
+                <p class="endpoint-desc">Публичная статистика. Расширенные метрики — с admin-токеном.</p>
+                <pre>curl -H "X-Admin-Token: YOUR_TOKEN" {{ request.url_root }}api/stats</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/analytics</span>
+                </div>
+                <p class="endpoint-desc">Данные для графиков на странице истории.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Управление</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-delete">DELETE</span>
+                    <span class="path">/api/delete-analysis/&lt;id&gt;</span>
+                </div>
+                <p class="endpoint-desc">Удалить одну запись из истории.</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-delete">DELETE</span>
+                    <span class="path">/api/clear-history</span>
+                </div>
+                <p class="endpoint-desc">Очистить всю историю анализов.</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-post">POST</span>
+                    <span class="path">/api/favorites</span>
+                </div>
+                <p class="endpoint-desc">Переключить избранное для записи.</p>
+                <pre>{"analysis_id": 1, "is_favorite": true}</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/alerts</span>
+                </div>
+                <p class="endpoint-desc">Список алертов (ухудшение SEO, производительности).</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-post">POST</span>
+                    <span class="path">/api/alerts</span>
+                </div>
+                <p class="endpoint-desc">Отметить алерт прочитанным.</p>
+                <pre>{"alert_id": 1}</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head">
+                    <span class="method method-get">GET</span>
+                    <span class="path">/api/export/json</span>
+                    <span class="path">/api/export/csv</span>
+                </div>
+                <p class="endpoint-desc">Экспорт истории анализов.</p>
+            </div>
+        </div>
+
+        {% include 'partials/footer.html' %}
+    </div>
+</body>
+</html>
